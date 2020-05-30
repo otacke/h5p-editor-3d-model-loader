@@ -1,0 +1,7 @@
+{
+  "libraryStrings": {
+    "fileDamaged": "Could not check the file. It might be damaged.",
+    "filetypeNotSupported": "This files doesn't seem to be a supported 3D model type.",
+    "onlyEmbeddedAssets": "Currently, only GLTF files with embedded assets are supported. You should convert the files to GLB format."
+  }
+}
