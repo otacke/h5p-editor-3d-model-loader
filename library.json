@@ -12,12 +12,12 @@
   "author": "Oliver Tacke",
   "preloadedJs": [
     {
-      "path": "scripts/h5peditor-3d-model-loader.js"
+      "path": "dist/h5peditor-3d-model-loader.js"
     }
   ],
   "preloadedCss": [
     {
-      "path": "styles/h5peditor-3d-model-loader.css"
+      "path": "dist/h5peditor-3d-model-loader.css"
     }
   ],
   "preloadedDependencies": [
