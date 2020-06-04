@@ -1,2 +1,2 @@
-H5P Editor GLTF Loader
+H5P Editor 3D Model Loader
 ==========
