@@ -101,13 +101,7 @@ class ThreeDModelLoader {
             }
           }
           catch (error) {
-            this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'fileDamaged'), '(' + error + ')');
-            return;
-          }
-
-          const json = JSON.parse(xhr.responseText);
-          if (!this.isGLTFEmbeddedFormat(json)) {
-            this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'onlyEmbeddedAssets'));
+            this.handleError(`${H5PEditor.t('H5PEditor.ThreeDModelLoader', 'fileDamaged')} (${error})`);
             return;
           }
 
@@ -116,7 +110,7 @@ class ThreeDModelLoader {
         xhr.send();
       }
       catch (error) {
-        this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'fileDamaged'), '(' + error + ')');
+        this.handleError(`${H5PEditor.t('H5PEditor.ThreeDModelLoader', 'fileDamaged')} (${error})`);
         return;
       }
     }
@@ -204,12 +198,12 @@ class ThreeDModelLoader {
         return;
       }
 
-      const img = this.fieldInstance.$file.find('img');
-      if (img.length > 0) {
+      const img = this.fieldInstance.$file.find('img').get(0);
+      if (img) {
         this.fileIcon.title = type;
         this.fileIcon.innerText = type;
-        this.fieldInstance.$file.find('img').css('display', 'none');
-        this.fieldInstance.$file.find('.thumbnail').append(this.fileIcon);
+        img.style.display = 'none';
+        this.fieldInstance.$file.find('.thumbnail').get(0).appendChild(this.fileIcon);
       }
       else {
         setTimeout(() => {
