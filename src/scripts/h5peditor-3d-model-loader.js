@@ -32,6 +32,47 @@ class ThreeDModelLoader {
     // Errors
     this.$errors = this.$container.children().children('.h5p-errors');
 
+    // Preview
+    this.previewWrapper = document.createElement('div');
+    this.previewWrapper.classList.add('h5peditor-3d-model-loader-preview-wrapper');
+    this.$container.get(0).appendChild(this.previewWrapper);
+
+    setTimeout(() => {
+      this.buildDemoScene();
+    }, 2000);
+
+    this.parent.ready( () => {
+      this.parent.children[1].children[0].on('changed', (event) => {
+        if (this.foo) {
+          this.foo.cube.scale.x = this.foo.scale.x * event.data.scale / 100;
+          this.foo.cube.scale.y = this.foo.scale.y * event.data.scale / 100;
+          this.foo.cube.scale.z = this.foo.scale.z * event.data.scale / 100;
+          this.foo.renderer.render( this.foo.scene, this.foo.camera );
+        }
+      });
+
+      this.parent.children[1].children[1].on('changed', (event) => {
+        console.log(event.data);
+        if (this.foo) {
+          this.foo.cube.position.x = this.foo.position.x + event.data.x;
+          this.foo.cube.position.y = this.foo.position.y + event.data.y;
+          this.foo.cube.position.z = this.foo.position.z + event.data.z;
+          this.foo.renderer.render( this.foo.scene, this.foo.camera );
+        }
+      });
+
+      this.parent.children[1].children[2].on('changed', (event) => {
+        console.log(event.data);
+        if (this.foo) {
+          this.foo.cube.rotation.x = this.foo.rotation.x + event.data.x / 360;
+          this.foo.cube.rotation.y = this.foo.rotation.y + event.data.y / 360;
+          this.foo.cube.rotation.z = this.foo.rotation.z + event.data.z / 360;
+          this.foo.renderer.render( this.foo.scene, this.foo.camera );
+        }
+      });
+
+    });
+
     // Changes
     this.changes = [];
 
@@ -56,6 +97,33 @@ class ThreeDModelLoader {
     this.fieldInstance.on('fileUploaded', (event) => {
       this.handleFileUploaded(event);
     });
+  }
+
+  buildDemoScene() {
+    var scene = new H5P.ThreeJS.Scene();
+    var camera = new H5P.ThreeJS.PerspectiveCamera( 45, 256 / 144, 0.1, 1000 );
+
+    var renderer = new H5P.ThreeJS.WebGLRenderer();
+    renderer.setSize( 256, 144 );
+    this.previewWrapper.appendChild( renderer.domElement );
+
+    var geometry = new H5P.ThreeJS.BoxGeometry();
+    var material = new H5P.ThreeJS.MeshBasicMaterial( { color: 0x00ff00 } );
+    var cube = new H5P.ThreeJS.Mesh( geometry, material );
+    scene.add( cube );
+
+    camera.position.z = 5;
+
+    renderer.render( scene, camera );
+
+    this.foo = {
+      renderer: renderer, scene: scene, camera: camera, cube: cube,
+      scale: {x: cube.scale.x, y: cube.scale.y, z: cube.scale.z},
+      position: {x: cube.position.x, y: cube.position.y, z: cube.position.z},
+      rotation: {x: cube.rotation.x, y: cube.rotation.y, z: cube.rotation.z}
+    };
+
+    console.log(this.foo);
   }
 
   /**
