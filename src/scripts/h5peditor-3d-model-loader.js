@@ -20,6 +20,21 @@ class ThreeDModelLoader {
     this.field.threeDModelLoader = this.field.threeDModelLoader || {};
     this.field.threeDModelLoader.fileTypeExtensions = this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
 
+    // Update scene plane for marker
+    if (this.field.threeDModelLoader.markerPatternPath) {
+      const arMarker = H5PEditor.findField(this.field.threeDModelLoader.markerPatternPath, this.parent);
+      if (arMarker) {
+        arMarker.on('removedMarkerPattern', () => {
+          // TODO: Remove texture from plain
+        });
+
+        arMarker.on('addedMarkerPattern', (event) => {
+          // TODO: Add texture to plain event.data
+          console.log('Add texture', event.data);
+        });
+      }
+    }
+
     // Create the wrapper:
     this.$container = H5P.jQuery('<div>', {
       'class': 'field h5peditor-3d-model-loader-container'
@@ -43,31 +58,31 @@ class ThreeDModelLoader {
 
     this.parent.ready( () => {
       this.parent.children[1].children[0].on('changed', (event) => {
-        if (this.foo) {
-          this.foo.cube.scale.x = this.foo.scale.x * event.data.scale / 100;
-          this.foo.cube.scale.y = this.foo.scale.y * event.data.scale / 100;
-          this.foo.cube.scale.z = this.foo.scale.z * event.data.scale / 100;
-          this.foo.renderer.render( this.foo.scene, this.foo.camera );
+        if (this.previewData) {
+          this.previewData.cube.scale.x = this.previewData.scale.x * event.data.scale / 100;
+          this.previewData.cube.scale.y = this.previewData.scale.y * event.data.scale / 100;
+          this.previewData.cube.scale.z = this.previewData.scale.z * event.data.scale / 100;
+          this.previewData.renderer.render( this.previewData.scene, this.previewData.camera );
         }
       });
 
       this.parent.children[1].children[1].on('changed', (event) => {
         console.log(event.data);
-        if (this.foo) {
-          this.foo.cube.position.x = this.foo.position.x + event.data.x;
-          this.foo.cube.position.y = this.foo.position.y + event.data.y;
-          this.foo.cube.position.z = this.foo.position.z + event.data.z;
-          this.foo.renderer.render( this.foo.scene, this.foo.camera );
+        if (this.previewData) {
+          this.previewData.cube.position.x = this.previewData.position.x + event.data.x;
+          this.previewData.cube.position.y = this.previewData.position.y + event.data.y;
+          this.previewData.cube.position.z = this.previewData.position.z + event.data.z;
+          this.previewData.renderer.render( this.previewData.scene, this.previewData.camera );
         }
       });
 
       this.parent.children[1].children[2].on('changed', (event) => {
         console.log(event.data);
-        if (this.foo) {
-          this.foo.cube.rotation.x = this.foo.rotation.x + event.data.x / 360;
-          this.foo.cube.rotation.y = this.foo.rotation.y + event.data.y / 360;
-          this.foo.cube.rotation.z = this.foo.rotation.z + event.data.z / 360;
-          this.foo.renderer.render( this.foo.scene, this.foo.camera );
+        if (this.previewData) {
+          this.previewData.cube.rotation.x = this.previewData.rotation.x + event.data.x / 360;
+          this.previewData.cube.rotation.y = this.previewData.rotation.y + event.data.y / 360;
+          this.previewData.cube.rotation.z = this.previewData.rotation.z + event.data.z / 360;
+          this.previewData.renderer.render( this.previewData.scene, this.previewData.camera );
         }
       });
 
@@ -116,14 +131,14 @@ class ThreeDModelLoader {
 
     renderer.render( scene, camera );
 
-    this.foo = {
+    this.previewData = {
       renderer: renderer, scene: scene, camera: camera, cube: cube,
       scale: {x: cube.scale.x, y: cube.scale.y, z: cube.scale.z},
       position: {x: cube.position.x, y: cube.position.y, z: cube.position.z},
       rotation: {x: cube.rotation.x, y: cube.rotation.y, z: cube.rotation.z}
     };
 
-    console.log(this.foo);
+    console.log(this.previewData);
   }
 
   /**
