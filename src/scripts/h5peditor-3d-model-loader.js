@@ -1,3 +1,5 @@
+import ThreeDModelLoaderPreview from './h5peditor-3d-model-loader-preview.js';
+
 class ThreeDModelLoader {
   /**
    * Used to load additional GLTF resources
@@ -20,21 +22,6 @@ class ThreeDModelLoader {
     this.field.threeDModelLoader = this.field.threeDModelLoader || {};
     this.field.threeDModelLoader.fileTypeExtensions = this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
 
-    // Update scene plane for marker
-    if (this.field.threeDModelLoader.markerPatternPath) {
-      const arMarker = H5PEditor.findField(this.field.threeDModelLoader.markerPatternPath, this.parent);
-      if (arMarker) {
-        arMarker.on('removedMarkerPattern', () => {
-          // TODO: Remove texture from plain
-        });
-
-        arMarker.on('addedMarkerPattern', (event) => {
-          // TODO: Add texture to plain event.data
-          console.log('Add texture', event.data);
-        });
-      }
-    }
-
     // Create the wrapper:
     this.$container = H5P.jQuery('<div>', {
       'class': 'field h5peditor-3d-model-loader-container'
@@ -47,45 +34,51 @@ class ThreeDModelLoader {
     // Errors
     this.$errors = this.$container.children().children('.h5p-errors');
 
-    // Preview
-    this.previewWrapper = document.createElement('div');
-    this.previewWrapper.classList.add('h5peditor-3d-model-loader-preview-wrapper');
-    this.$container.get(0).appendChild(this.previewWrapper);
+    // Create preview
+    this.preview = new ThreeDModelLoaderPreview();
+    this.$container.get(0).appendChild(this.preview.getDOM());
 
-    setTimeout(() => {
-      this.buildDemoScene();
-    }, 2000);
+    // Update scene plane for marker
+    if (this.field.threeDModelLoader.markerPatternPath) {
+      const arMarker = H5PEditor.findField(this.field.threeDModelLoader.markerPatternPath, this.parent);
+      if (arMarker) {
+        arMarker.on('removedMarkerPattern', () => {
+          this.preview.setMarkerTexture();
+        });
+
+        arMarker.on('addedMarkerPattern', (event) => {
+          this.preview.setMarkerTexture(event.data);
+        });
+      }
+    }
 
     this.parent.ready( () => {
-      this.parent.children[1].children[0].on('changed', (event) => {
-        if (this.previewData) {
-          this.previewData.cube.scale.x = this.previewData.scale.x * event.data.scale / 100;
-          this.previewData.cube.scale.y = this.previewData.scale.y * event.data.scale / 100;
-          this.previewData.cube.scale.z = this.previewData.scale.z * event.data.scale / 100;
-          this.previewData.renderer.render( this.previewData.scene, this.previewData.camera );
-        }
+      // TODO: Nice finder ...
+      this.rowScale = this.parent.children[1].children[0];
+      this.rowScale.on('changed', (event) => {
+        this.preview.setModelScale(
+          parseFloat(event.data.scale) / 100
+        );
       });
 
-      this.parent.children[1].children[1].on('changed', (event) => {
-        console.log(event.data);
-        if (this.previewData) {
-          this.previewData.cube.position.x = this.previewData.position.x + event.data.x;
-          this.previewData.cube.position.y = this.previewData.position.y + event.data.y;
-          this.previewData.cube.position.z = this.previewData.position.z + event.data.z;
-          this.previewData.renderer.render( this.previewData.scene, this.previewData.camera );
-        }
+      this.rowPosition = this.parent.children[1].children[1];
+
+      this.rowPosition.on('changed', (event) => {
+        this.preview.setModelPosition({
+          x: parseFloat(event.data.x),
+          y: parseFloat(event.data.y),
+          z: parseFloat(event.data.z)
+        });
       });
 
-      this.parent.children[1].children[2].on('changed', (event) => {
-        console.log(event.data);
-        if (this.previewData) {
-          this.previewData.cube.rotation.x = this.previewData.rotation.x + event.data.x / 360;
-          this.previewData.cube.rotation.y = this.previewData.rotation.y + event.data.y / 360;
-          this.previewData.cube.rotation.z = this.previewData.rotation.z + event.data.z / 360;
-          this.previewData.renderer.render( this.previewData.scene, this.previewData.camera );
-        }
+      this.rowRotation = this.parent.children[1].children[2];
+      this.rowRotation.on('changed', (event) => {
+        this.preview.setModelRotation({
+          x: parseFloat(event.data.x),
+          y: parseFloat(event.data.y),
+          z: parseFloat(event.data.z)
+        });
       });
-
     });
 
     // Changes
@@ -97,56 +90,89 @@ class ThreeDModelLoader {
     // Update icon on loadup
     H5PEditor.followField(this.parent, this.field.name, (event) => {
       if (!event || !event.path) {
+        this.resetModel();
         return;
       }
 
       // Only gltf supported
-      const extension = event.path.split('.').slice(-1)[0].toLowerCase();
+      const extension = event.path.split('.').pop().toLowerCase();
       if (this.field.threeDModelLoader.fileTypeExtensions.indexOf(extension) === -1) {
         return;
       }
 
-      this.showFileIcon(extension);
+      this.setModel(event.path);
     });
 
-    this.fieldInstance.on('fileUploaded', (event) => {
-      this.handleFileUploaded(event);
+    this.fieldInstance.on('uploadProgress', () => {
+      this.preview.hide();
+    });
+
+    // React on file changes
+    this.fieldInstance.changes.push((event) => {
+      if (!event) {
+        this.resetModel();
+      }
+      else {
+        this.handleFileUploaded(event.path);
+      }
     });
   }
 
-  buildDemoScene() {
-    var scene = new H5P.ThreeJS.Scene();
-    var camera = new H5P.ThreeJS.PerspectiveCamera( 45, 256 / 144, 0.1, 1000 );
+  /**
+   * Reset the model.
+   */
+  resetModel() {
+    this.preview.setModel();
+    this.preview.hide();
 
-    var renderer = new H5P.ThreeJS.WebGLRenderer();
-    renderer.setSize( 256, 144 );
-    this.previewWrapper.appendChild( renderer.domElement );
+    // Reset geometry
+    [this.rowScale, this.rowPosition, this.rowRotation].forEach(row => {
+      row.children.forEach(child => {
+        child.$input.val(child.field.default);
+        child.$input.change();
+      });
+    });
+  }
 
-    var geometry = new H5P.ThreeJS.BoxGeometry();
-    var material = new H5P.ThreeJS.MeshBasicMaterial( { color: 0x00ff00 } );
-    var cube = new H5P.ThreeJS.Mesh( geometry, material );
-    scene.add( cube );
 
-    camera.position.z = 5;
+  /**
+   * Set model in preview.
+   * @param {string} path Full URL path to model file.
+   */
+  setModel(path) {
+    const extension = path.replace(/#tmp$/, '').split('.').pop().toLowerCase();
 
-    renderer.render( scene, camera );
+    this.showFileIcon(extension);
+    this.preview.setModel(path, this.getGeometry());
+    this.preview.show();
+  }
 
-    this.previewData = {
-      renderer: renderer, scene: scene, camera: camera, cube: cube,
-      scale: {x: cube.scale.x, y: cube.scale.y, z: cube.scale.z},
-      position: {x: cube.position.x, y: cube.position.y, z: cube.position.z},
-      rotation: {x: cube.rotation.x, y: cube.rotation.y, z: cube.rotation.z}
+  /**
+   * Get current geometry.
+   * @return {object} Geometry data.
+   */
+  getGeometry() {
+    return {
+      scale: parseFloat(this.rowScale.children[0].$input.val()) / 100,
+      position: {
+        x: parseFloat(this.rowPosition.children[0].$input.val()),
+        y: parseFloat(this.rowPosition.children[1].$input.val()),
+        z: parseFloat(this.rowPosition.children[2].$input.val()),
+      },
+      rotation: {
+        x: parseFloat(this.rowRotation.children[0].$input.val()),
+        y: parseFloat(this.rowRotation.children[1].$input.val()),
+        z: parseFloat(this.rowRotation.children[2].$input.val()),
+      }
     };
-
-    console.log(this.previewData);
   }
 
   /**
    * Handle new file uploaded.
-   * @param {Event} event Event.
+   * @param {string} path Path to model.
    */
-  handleFileUploaded(event) {
-    const extension = event.data.path.split('#').slice(0, -1).join('#').split('.').slice(-1)[0].toLowerCase();
+  handleFileUploaded(path) {
+    const extension = path.split('#').slice(0, -1).join('#').split('.').slice(-1)[0].toLowerCase();
 
     // Only gltf supported
     if (this.field.threeDModelLoader.fileTypeExtensions.indexOf(extension) === -1) {
@@ -164,7 +190,7 @@ class ThreeDModelLoader {
     if (extension === 'gltf') {
       // Get potential cross-origin source
       const element = document.createElement('div');
-      H5P.setSource(element, event.data, H5PEditor.contentId);
+      H5P.setSource(element, {path: path}, H5PEditor.contentId);
       const src = element.src;
 
       // Try to parse JSON from file
@@ -188,7 +214,7 @@ class ThreeDModelLoader {
             return;
           }
 
-          this.showFileIcon(extension);
+          this.setModel(path);
         };
         xhr.send();
       }
@@ -197,8 +223,9 @@ class ThreeDModelLoader {
         return;
       }
     }
-
-    this.showFileIcon(extension);
+    else {
+      this.setModel(path);
+    }
   }
 
   /**

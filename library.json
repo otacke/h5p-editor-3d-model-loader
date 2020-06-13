@@ -22,9 +22,14 @@
   ],
   "preloadedDependencies": [
     {
-      "machineName": "H5P.ThreeJS",
+      "machineName": "H5P.AFrame",
       "majorVersion": 1,
       "minorVersion": 0
+    },
+    {
+      "machineName": "H5P.AFrameOrbitControls",
+      "majorVersion": 1,
+      "minorVersion": 3
     }
   ]
 }
