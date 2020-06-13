@@ -22,6 +22,8 @@ class ThreeDModelLoader {
     this.field.threeDModelLoader = this.field.threeDModelLoader || {};
     this.field.threeDModelLoader.fileTypeExtensions = this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
 
+    this.queue = [];
+
     // Create the wrapper:
     this.$container = H5P.jQuery('<div>', {
       'class': 'field h5peditor-3d-model-loader-container'
@@ -35,7 +37,12 @@ class ThreeDModelLoader {
     this.$errors = this.$container.children().children('.h5p-errors');
 
     // Create preview
-    this.preview = new ThreeDModelLoaderPreview();
+    this.preview = new ThreeDModelLoaderPreview({
+      onIframeComplete: (() => {
+        console.log('iframecomplete');
+        // init stuff
+      })
+    });
     this.$container.get(0).appendChild(this.preview.getDOM());
 
     // Update scene plane for marker

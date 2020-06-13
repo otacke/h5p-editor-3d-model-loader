@@ -3,54 +3,11 @@ class ThreeDModelLoaderPreview {
    * TODO: Description
    * @class H5PEditor.ThreeDModelLoaderPreview
    */
-  constructor() {
-    if (!H5P.isAFrameRunning) {
-      H5P.AFrame();
-      H5P.AFrameOrbitControls();
-      H5P.isAFrameRunning = true;
-    }
+  constructor(callbacks = {}) {
+    this.callbacks = callbacks || {};
+    this.callbacks.onIframeComplete = callbacks.onIframeComplete || (() => {});
 
-    // Scene
-    this.scene = document.createElement('a-scene');
-    this.scene.setAttribute('embedded', '');
-    this.scene.setAttribute('vr-mode-ui', 'false');
-
-    // Assets
-    const assets = document.createElement('a-assets');
-    this.markerTexture = document.createElement('img');
-    this.markerTexture.setAttribute('id', 'foo123'); // TODO: Unique IDs
-    this.markerTexture.src = ThreeDModelLoaderPreview.DEFAULT_TEXTURE;
-    assets.appendChild(this.markerTexture);
-
-    this.scene.appendChild(assets);
-
-    // Model
-    const entityModel = document.createElement('a-entity');
-    this.model = document.createElement('a-gltf-model');
-    entityModel.appendChild(this.model);
-    this.scene.appendChild(entityModel);
-
-    // Plane
-    this.markerPlane = document.createElement('a-plane');
-    this.markerPlane.setAttribute('position', `${ThreeDModelLoaderPreview.DEFAULT_OFFSET.x} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.y} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.z}`);
-    this.markerPlane.setAttribute('rotation', '-90 0 0');
-    this.markerPlane.setAttribute('width', '1');
-    this.markerPlane.setAttribute('height', '1');
-    this.markerPlane.setAttribute('src', '#foo123');
-    this.markerPlane.setAttribute('shadow', '');
-    this.scene.appendChild(this.markerPlane);
-
-    // Camera
-    const entityCamera = document.createElement('a-entity');
-    entityCamera.setAttribute('camera', '');
-    entityCamera.setAttribute('look-controls', '');
-    entityCamera.setAttribute('orbit-controls', 'initialPosition: 0 0 2; enableKeys: false;');
-    this.scene.appendChild(entityCamera);
-
-    this.previewWrapper = document.createElement('div');
-    this.previewWrapper.classList.add('h5peditor-3d-model-loader-preview-wrapper');
-    this.previewWrapper.classList.add('h5peditor-3d-model-loader-display-none');
-    this.previewWrapper.appendChild(this.scene);
+    this.iframe = this.buildIframe();
   }
 
   /**
@@ -58,27 +15,187 @@ class ThreeDModelLoaderPreview {
    * @return {HTMLElement} Scene DOM.
    */
   getDOM() {
-    // TODO: Check for better solution, Orbit Controls sets this
-    setTimeout(() => {
-      document.body.style.cursor = 'unset';
-    }, 500);
+    return this.iframe;
+  }
 
-    this.isInitialized = true;
-    return this.previewWrapper;
+  /**
+   * Build iframe.
+   * @param {HTMLElement} iframe.
+   */
+  buildIframe() {
+    const iframe = document.createElement('iframe');
+    iframe.classList.add('h5p-editor-3d-model-loader-preview-iframe');
+
+    iframe.addEventListener('load', () => {
+      if (this.iframeLoaded) {
+        return;
+      }
+
+      // Will write the iframe contents
+      this.handleIframeLoaded(this.iframe);
+      this.iframeLoaded = true;
+    });
+
+    return iframe;
+  }
+
+  /**
+   * Handle iframe loaded.
+   * @param {HTMLElement} iframe Iframe.
+   */
+  handleIframeLoaded(iframe) {
+    try {
+      const iframeWindow = iframe.contentWindow;
+
+      // Write iframe contents
+      iframe.contentWindow.document.open();
+      iframe.contentWindow.document.write(this.buildHTML().outerHTML);
+      iframe.contentWindow.document.close();
+
+      this.iframeDocument = iframe.contentDocument ? iframe.contentDocument: iframeWindow;
+
+      this.handleIframeComplete();
+    }
+    catch (error) {
+      console.warn(error);
+    }
+  }
+
+  /**
+   * Build HTML for iframe.
+   * @return {HTMLElement}
+   */
+  buildHTML() {
+    const html = document.createElement('html');
+    html.appendChild(this.buildHeader());
+    html.appendChild(this.buildBody());
+
+    return html;
+  }
+
+  /**
+   * Build Header.
+   * @return {HTMLElement} Header.
+   */
+  buildHeader() {
+    const head = document.createElement('head');
+
+    // TODO: There must be a way to build the style dynamically from H5P libraries
+    const stylesheet = document.createElement('style');
+    head.appendChild(stylesheet);
+
+    // Load AFrame script
+    const scriptAFrame = document.createElement('script');
+    scriptAFrame.text = H5P.AFrame.toString();
+    head.appendChild(scriptAFrame);
+
+    const scriptAFrameOrbitControls = document.createElement('script');
+    scriptAFrameOrbitControls.text = H5P.AFrameOrbitControls.toString();
+    head.appendChild(scriptAFrameOrbitControls);
+
+    // Start scripts
+    const scriptStarter = document.createElement('script');
+    scriptStarter.text  = 'H5PAFrame();';
+    scriptStarter.text += 'H5PAFrameOrbitControls();';
+    head.appendChild(scriptStarter);
+
+    return head;
+  }
+
+  /**
+   * Build body.
+   * @return {HTMLElement} Body.
+   */
+  buildBody() {
+    const body = document.createElement('body');
+    body.style.background = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TtVIqDnYQcQhSnSxIFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi5Oik6CIl/i8ptIj14Lgf7+497t4BQr3MNKtrAtB020wl4mImuyoGXtGDEIKIYURmljEnSUl0HF/38PH1LsqzOp/7c/SpOYsBPpF4lhmmTbxBPL1pG5z3icOsKKvE58TjJl2Q+JHrisdvnAsuCzwzbKZT88RhYrHQxkobs6KpEU8RR1RNp3wh47HKeYuzVq6y5j35C0M5fWWZ6zSHkcAiliBBhIIqSijDRpRWnRQLKdqPd/APuX6JXAq5SmDkWEAFGmTXD/4Hv7u18pMxLykUB7pfHOdjFAjsAo2a43wfO07jBPA/A1d6y1+pAzOfpNdaWuQI6N8GLq5bmrIHXO4Ag0+GbMqu5Kcp5PPA+xl9UxYYuAWCa15vzX2cPgBp6ip5AxwcAmMFyl7v8O7e9t7+PdPs7weB03KtCTN/SAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+QGDAsAMkAVB00AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAPklEQVRIx2M8ceIEAynA1NSUJPVMDDQGoxaMWjBqwagFoxZQAzD+/fuXJA2k1h+jcTBqwagFoxaMWjAkLAAAEQ8IhUX6aEEAAAAASUVORK5CYII=")';
+    body.style.margin = '0';
+    body.style.overflow = 'hidden';
+    body.style.padding = '0';
+    body.style.height = '144px';
+    body.style.width = '256px';
+
+    body.appendChild(this.buildScene());
+
+    return body;
+  }
+
+  /**
+   * Build Scene.
+   * @return {HTMLElement} Scene.
+   */
+  buildScene() {
+    // Scene
+    const scene = document.createElement('a-scene');
+    scene.setAttribute('embedded', '');
+    scene.setAttribute('vr-mode-ui', 'false');
+
+    // Model
+    const entityModel = document.createElement('a-entity');
+    const model = document.createElement('a-gltf-model');
+    model.setAttribute('id', 'model');
+    entityModel.appendChild(model);
+    scene.appendChild(entityModel);
+
+    // Plane
+    const markerPlane = document.createElement('a-plane');
+    markerPlane.setAttribute('id', 'markerPlane');
+    markerPlane.setAttribute('position', `${ThreeDModelLoaderPreview.DEFAULT_OFFSET.x} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.y} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.z}`);
+    markerPlane.setAttribute('rotation', '-90 0 0');
+    markerPlane.setAttribute('width', '1');
+    markerPlane.setAttribute('height', '1');
+    markerPlane.setAttribute('src', ThreeDModelLoaderPreview.DEFAULT_TEXTURE);
+    markerPlane.setAttribute('shadow', '');
+
+    scene.appendChild(markerPlane);
+
+    // Camera
+    const entityCamera = document.createElement('a-entity');
+    entityCamera.setAttribute('camera', '');
+    entityCamera.setAttribute('look-controls', '');
+    entityCamera.setAttribute('orbit-controls', 'initialPosition: 0 0 2; enableKeys: false;');
+    scene.appendChild(entityCamera);
+
+    return scene;
+  }
+
+  /**
+   * Handle iframe complete. Depends on load timing.
+   */
+  handleIframeComplete() {
+    if (this.iframeDocument.readyState !== 'complete') {
+      this.iframeDocument.addEventListener('readystatechange', () => {
+        if (this.iframeDocument.readyState === 'complete') {
+
+          this.model = this.iframeDocument.querySelector('#model');
+          this.markerPlane = this.iframeDocument.querySelector('#markerPlane');
+
+          this.isInitialized = true;
+          this.callbacks.iframeComplete();
+        }
+      });
+    }
+    else {
+      this.model = this.iframeDocument.querySelector('#model');
+      this.markerPlane = this.iframeDocument.querySelector('#markerPlane');
+
+      this.isInitialized = true;
+      this.callbacks.onIframeComplete();
+    }
   }
 
   /**
    * Show preview.
    */
   show() {
-    this.previewWrapper.classList.remove('h5peditor-3d-model-loader-display-none');
+    this.iframe.classList.remove('h5peditor-3d-model-loader-display-none');
   }
 
   /**
    * Hide preview.
    */
   hide() {
-    this.previewWrapper.classList.add('h5peditor-3d-model-loader-display-none');
+    this.iframe.classList.add('h5peditor-3d-model-loader-display-none');
   }
 
   /**
@@ -90,11 +207,7 @@ class ThreeDModelLoaderPreview {
       return; // Not ready
     }
 
-    // Set texture
-    this.markerTexture.onload = () => {
-      this.markerPlane.getObject3D('mesh').material.map = new window.THREE.TextureLoader().load( this.markerTexture.src );
-    };
-    this.markerTexture.src = src;
+    this.markerPlane.setAttribute('src', src);
   }
 
   /**
