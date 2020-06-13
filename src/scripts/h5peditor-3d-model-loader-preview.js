@@ -4,8 +4,11 @@ class ThreeDModelLoaderPreview {
    * @class H5PEditor.ThreeDModelLoaderPreview
    */
   constructor() {
-    H5P.AFrame();
-    H5P.AFrameOrbitControls();
+    if (!H5P.isAFrameRunning) {
+      H5P.AFrame();
+      H5P.AFrameOrbitControls();
+      H5P.isAFrameRunning = true;
+    }
 
     // Scene
     this.scene = document.createElement('a-scene');
