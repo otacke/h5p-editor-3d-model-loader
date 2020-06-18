@@ -81,8 +81,8 @@ class ThreeDModelLoaderPreview {
     const head = document.createElement('head');
 
     // TODO: There must be a way to build the style dynamically from H5P libraries
-    const stylesheet = document.createElement('style');
-    head.appendChild(stylesheet);
+    // const stylesheet = document.createElement('style');
+    // head.appendChild(stylesheet);
 
     // Load AFrame script
     const scriptAFrame = document.createElement('script');
@@ -236,6 +236,8 @@ class ThreeDModelLoaderPreview {
 
     // set model
     this.model.setAttribute('gltf-model', src);
+
+    // TODO: Check if there's an event that can be listened to on done
 
     // Set geometry
     if (params && params.scale) {

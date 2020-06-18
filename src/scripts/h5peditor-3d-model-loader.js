@@ -39,8 +39,7 @@ class ThreeDModelLoader {
     // Create preview
     this.preview = new ThreeDModelLoaderPreview({
       onIframeComplete: (() => {
-        console.log('iframecomplete');
-        // init stuff
+        // TODO: Potentially init stuff only now
       })
     });
     this.$container.get(0).appendChild(this.preview.getDOM());
@@ -209,10 +208,15 @@ class ThreeDModelLoader {
             return;
           }
 
+          // TODO: Possibly check for GLTF 2.0, 1.0 can't be handled by ThreeJS
+
           try {
             const json = JSON.parse(xhr.responseText);
             if (!this.isGLTFEmbeddedFormat(json)) {
               this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'onlyEmbeddedAssets'));
+
+              // TODO: Local converter
+
               return;
             }
           }
