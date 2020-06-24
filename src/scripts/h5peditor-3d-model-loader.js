@@ -1,3 +1,4 @@
+import ThreeDModelLoaderConversionDropzone from './h5peditor-3d-model-loader-conversion-dropzone.js';
 import ThreeDModelLoaderPreview from './h5peditor-3d-model-loader-preview.js';
 
 class ThreeDModelLoader {
@@ -39,7 +40,7 @@ class ThreeDModelLoader {
     // Create preview
     this.preview = new ThreeDModelLoaderPreview({
       onIframeComplete: (() => {
-        // TODO: Potentially init stuff only now
+        // Potentially init stuff only now
       })
     });
     this.$container.get(0).appendChild(this.preview.getDOM());
@@ -59,32 +60,46 @@ class ThreeDModelLoader {
     }
 
     this.parent.ready( () => {
-      // TODO: Nice finder ...
-      this.rowScale = this.parent.children[1].children[0];
-      this.rowScale.on('changed', (event) => {
-        this.preview.setModelScale(
-          parseFloat(event.data.scale) / 100
-        );
+      // Create dropzone
+      this.dropzone = this.dropzone || new ThreeDModelLoaderConversionDropzone((result) => {
+        this.handleConversionDone(result);
       });
+      const container = this.$container.get(0);
+      container.parentNode.insertBefore(this.dropzone.getDOM(), container.nextSibling);
 
-      this.rowPosition = this.parent.children[1].children[1];
-
-      this.rowPosition.on('changed', (event) => {
-        this.preview.setModelPosition({
-          x: parseFloat(event.data.x),
-          y: parseFloat(event.data.y),
-          z: parseFloat(event.data.z)
+      // Listen for scale change
+      this.rowScale = H5PEditor.findField('geometry/scale', this.parent);
+      if (this.rowScale) {
+        this.rowScale.on('changed', (event) => {
+          this.preview.setModelScale(
+            parseFloat(event.data.scale) / 100
+          );
         });
-      });
+      }
 
-      this.rowRotation = this.parent.children[1].children[2];
-      this.rowRotation.on('changed', (event) => {
-        this.preview.setModelRotation({
-          x: parseFloat(event.data.x),
-          y: parseFloat(event.data.y),
-          z: parseFloat(event.data.z)
+      // Listen for position change
+      this.rowPosition = H5PEditor.findField('geometry/position', this.parent);
+      if (this.rowPosition) {
+        this.rowPosition.on('changed', (event) => {
+          this.preview.setModelPosition({
+            x: parseFloat(event.data.x),
+            y: parseFloat(event.data.y),
+            z: parseFloat(event.data.z)
+          });
         });
-      });
+      }
+
+      // Listen for rotation change
+      this.rowRotation = H5PEditor.findField('geometry/rotation', this.parent);
+      if (this.rowRotation) {
+        this.rowRotation.on('changed', (event) => {
+          this.preview.setModelRotation({
+            x: parseFloat(event.data.x),
+            y: parseFloat(event.data.y),
+            z: parseFloat(event.data.z)
+          });
+        });
+      }
     });
 
     // Changes
@@ -111,6 +126,7 @@ class ThreeDModelLoader {
 
     this.fieldInstance.on('uploadProgress', () => {
       this.preview.hide();
+      this.resetGeometry();
     });
 
     // React on file changes
@@ -125,14 +141,14 @@ class ThreeDModelLoader {
   }
 
   /**
-   * Reset the model.
+   * Reset geometry.
    */
-  resetModel() {
-    this.preview.setModel();
-    this.preview.hide();
-
-    // Reset geometry
+  resetGeometry() {
     [this.rowScale, this.rowPosition, this.rowRotation].forEach(row => {
+      if (!row) {
+        return;
+      }
+
       row.children.forEach(child => {
         child.$input.val(child.field.default);
         child.$input.change();
@@ -140,6 +156,14 @@ class ThreeDModelLoader {
     });
   }
 
+  /**
+   * Reset model.
+   */
+  resetModel() {
+    this.preview.setModel();
+    this.preview.hide();
+    this.resetGeometry();
+  }
 
   /**
    * Set model in preview.
@@ -149,6 +173,7 @@ class ThreeDModelLoader {
     const extension = path.replace(/#tmp$/, '').split('.').pop().toLowerCase();
 
     this.showFileIcon(extension);
+    this.dropzone.hide();
     this.preview.setModel(path, this.getGeometry());
     this.preview.show();
   }
@@ -158,6 +183,7 @@ class ThreeDModelLoader {
    * @return {object} Geometry data.
    */
   getGeometry() {
+    // Yes, you'd make sure the children are in place and number fields...
     return {
       scale: parseFloat(this.rowScale.children[0].$input.val()) / 100,
       position: {
@@ -184,6 +210,7 @@ class ThreeDModelLoader {
     if (this.field.threeDModelLoader.fileTypeExtensions.indexOf(extension) === -1) {
       this.$errors.append(H5PEditor.createError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'filetypeNotSupported')));
       this.removeFile();
+      this.dropzone.hide();
 
       return;
     }
@@ -208,15 +235,19 @@ class ThreeDModelLoader {
             return;
           }
 
-          // TODO: Possibly check for GLTF 2.0, 1.0 can't be handled by ThreeJS
-
           try {
             const json = JSON.parse(xhr.responseText);
+
+            // Three.JS cannot handle glTF v1.0.
+            if (!this.isGLTFVersionTwo(json)) {
+              this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'onlyVersionTwo'));
+              return;
+            }
+
+            // Can't upload multiple files or zip files, offer conversion
             if (!this.isGLTFEmbeddedFormat(json)) {
               this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'onlyEmbeddedAssets'));
-
-              // TODO: Local converter
-
+              this.handleEmbeddedAssets();
               return;
             }
           }
@@ -240,43 +271,37 @@ class ThreeDModelLoader {
   }
 
   /**
+   * Handle embedded assets uploaded.
+   */
+  handleEmbeddedAssets() {
+    // Add dropzone to DOM
+    this.dropzone.show();
+  }
+
+  /**
+   * Handle conversion done.
+   * @param {object} result Result.
+   * @param {object} [result.file] File data.
+   * @param {string} [result.error] Error message.
+   */
+  handleConversionDone(result) {
+    if (result.error) {
+      this.handleError(`${H5PEditor.t('H5PEditor.ThreeDModelLoader', 'conversionError')} (${result.error})`);
+      return;
+    }
+
+    // Hope all's sanitized here with the file
+    this.fieldInstance.upload(result.file, 'foo.glb');
+    this.dropzone.hide();
+  }
+
+  /**
    * Check JSON of GLTF file for being embedded format.
    * @param {object} json GLTF file as JSON object.
    * @return {boolean} True, if is embedded format, else false.
    */
   isGLTFEmbeddedFormat(json) {
-    /**
-     * Get objects with particular key (and value) from object.
-     * @param {object} obj Object to search in.
-     * @param {string} key Key to search for.
-     * @param {string} val Value to search for.
-     */
-    const getObjects = (obj, key, val) => {
-      let objects = [];
-      for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) {
-          continue;
-        }
-
-        if (typeof obj[i] == 'object') {
-          objects = objects.concat(getObjects(obj[i], key, val));
-        }
-        else {
-          if (i === key && obj[i] === val || i === key && val === '') {
-            objects.push(obj);
-          }
-          else if (obj[i] === val && key === '') {
-            if (objects.lastIndexOf(obj) === -1) {
-              objects.push(obj);
-            }
-          }
-        }
-      }
-
-      return objects;
-    };
-
-    const objects = getObjects(json, 'uri', '');
+    const objects = this.findObjects(json, 'uri', '');
     const containsExternalReference = objects.some((obj) => {
       return obj.uri.substr(0, 5) !== 'data:';
     });
@@ -285,10 +310,57 @@ class ThreeDModelLoader {
   }
 
   /**
+   * Check JSON of GLTF file for version strings.
+   * @param {object} json GLTF file as JSON object.
+   * @return {boolean} True, if no version is of 1.0.
+   */
+  isGLTFVersionTwo(json) {
+    const objects = this.findObjects(json, 'version', '');
+
+    const containsOnePointO = objects.some((obj) => {
+      return obj.version === '1.0';
+    });
+
+    return !containsOnePointO;
+  }
+
+  /**
+   * Get objects with particular key (and value) from object.
+   * @param {object} obj Object to search in.
+   * @param {string} key Key to search for.
+   * @param {string} val Value to search for.
+   */
+  findObjects(obj, key, val) {
+    let objects = [];
+    for (var i in obj) {
+      if (!obj.hasOwnProperty(i)) {
+        continue;
+      }
+
+      if (typeof obj[i] == 'object') {
+        objects = objects.concat(this.findObjects(obj[i], key, val));
+      }
+      else {
+        if (i === key && obj[i] === val || i === key && val === '') {
+          objects.push(obj);
+        }
+        else if (obj[i] === val && key === '') {
+          if (objects.lastIndexOf(obj) === -1) {
+            objects.push(obj);
+          }
+        }
+      }
+    }
+
+    return objects;
+  }
+
+  /**
    * Handle error.
    * @param {string} errorMessage Error message text.
    */
   handleError(errorMessage) {
+    this.$errors.empty();
     this.$errors.append(H5PEditor.createError(errorMessage));
     this.removeFile();
   }

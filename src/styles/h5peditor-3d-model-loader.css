@@ -33,3 +33,21 @@
 .h5peditor-3d-model-loader-display-none {
   display: none;
 }
+
+.h5peditor-3d-model-loader-converter-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.h5peditor-3d-model-loader-converter-container.h5peditor-3d-model-loader-display-none {
+  display: none;
+}
+
+.h5peditor-3d-model-loader-converter-dropzone {
+  background-color: #fcfcfc;
+  border: 0.1em dashed #d0d0d1;
+  padding: 4em 0;
+  text-align: center;
+  width: calc(100% - 0.2em);
+}

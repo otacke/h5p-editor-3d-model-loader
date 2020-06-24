@@ -1,6 +1,6 @@
 class ThreeDModelLoaderPreview {
   /**
-   * TODO: Description
+   * 3D Preview of model
    * @class H5PEditor.ThreeDModelLoaderPreview
    */
   constructor(callbacks = {}) {
@@ -80,9 +80,7 @@ class ThreeDModelLoaderPreview {
   buildHeader() {
     const head = document.createElement('head');
 
-    // TODO: There must be a way to build the style dynamically from H5P libraries
-    // const stylesheet = document.createElement('style');
-    // head.appendChild(stylesheet);
+    // There must be a way to build the style dynamically from H5P libraries
 
     // Load AFrame script
     const scriptAFrame = document.createElement('script');
@@ -234,10 +232,8 @@ class ThreeDModelLoaderPreview {
       return;
     }
 
-    // set model
+    // Set model
     this.model.setAttribute('gltf-model', src);
-
-    // TODO: Check if there's an event that can be listened to on done
 
     // Set geometry
     if (params && params.scale) {
