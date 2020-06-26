@@ -22,6 +22,7 @@ class ThreeDModelLoader {
     // Sanitize field parameters
     this.field.threeDModelLoader = this.field.threeDModelLoader || {};
     this.field.threeDModelLoader.fileTypeExtensions = this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
+    this.field.threeDModelLoader.geometryPath = this.field.threeDModelLoader.geometryPath || '';
     this.field.threeDModelLoader.planePatternPath = this.field.threeDModelLoader.planePatternPath || '';
 
     this.queue = [];
@@ -72,38 +73,43 @@ class ThreeDModelLoader {
       const container = this.$container.get(0);
       container.parentNode.insertBefore(this.dropzone.getDOM(), container.nextSibling);
 
-      // Listen for scale change
-      this.rowScale = H5PEditor.findField('geometry/scale', this.parent);
-      if (this.rowScale) {
-        this.rowScale.on('changed', (event) => {
-          this.preview.setModelScale(
-            parseFloat(event.data.scale) / 100
-          );
-        });
-      }
+      // It might be better to have a complete geometry editor widget
+      const geometryPath = this.field.threeDModelLoader.geometryPath;
 
-      // Listen for position change
-      this.rowPosition = H5PEditor.findField('geometry/position', this.parent);
-      if (this.rowPosition) {
-        this.rowPosition.on('changed', (event) => {
-          this.preview.setModelPosition({
-            x: parseFloat(event.data.x),
-            y: parseFloat(event.data.y),
-            z: parseFloat(event.data.z)
+      if (this.field.threeDModelLoader.geometryPath !== '') {
+        // Listen for scale change
+        this.rowScale = H5PEditor.findField(`${geometryPath}/scale`, this.parent);
+        if (this.rowScale) {
+          this.rowScale.on('changed', (event) => {
+            this.preview.setModelScale(
+              parseFloat(event.data.scale) / 100
+            );
           });
-        });
-      }
+        }
 
-      // Listen for rotation change
-      this.rowRotation = H5PEditor.findField('geometry/rotation', this.parent);
-      if (this.rowRotation) {
-        this.rowRotation.on('changed', (event) => {
-          this.preview.setModelRotation({
-            x: parseFloat(event.data.x),
-            y: parseFloat(event.data.y),
-            z: parseFloat(event.data.z)
+        // Listen for position change
+        this.rowPosition = H5PEditor.findField(`${geometryPath}/position`, this.parent);
+        if (this.rowPosition) {
+          this.rowPosition.on('changed', (event) => {
+            this.preview.setModelPosition({
+              x: parseFloat(event.data.x),
+              y: parseFloat(event.data.y),
+              z: parseFloat(event.data.z)
+            });
           });
-        });
+        }
+
+        // Listen for rotation change
+        this.rowRotation = H5PEditor.findField(`${geometryPath}/rotation`, this.parent);
+        if (this.rowRotation) {
+          this.rowRotation.on('changed', (event) => {
+            this.preview.setModelRotation({
+              x: parseFloat(event.data.x),
+              y: parseFloat(event.data.y),
+              z: parseFloat(event.data.z)
+            });
+          });
+        }
       }
     });
 
