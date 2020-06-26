@@ -1,6 +1,11 @@
 /**
  * @class H5PEditor.ThreeDModelLoaderGLTF2GLB
+ *
  * Based on makeglb by Saurabh Bhatia
+ * https://github.com/sbtron/makeglb
+ * The MIT License
+ * Copyright (c) 2017 Saurabh Bhatia
+ *
  */
 class ThreeDModelLoaderGLTF2GLB {
   /**
