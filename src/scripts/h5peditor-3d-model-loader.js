@@ -22,6 +22,7 @@ class ThreeDModelLoader {
     // Sanitize field parameters
     this.field.threeDModelLoader = this.field.threeDModelLoader || {};
     this.field.threeDModelLoader.fileTypeExtensions = this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
+    this.field.threeDModelLoader.planePatternPath = this.field.threeDModelLoader.planePatternPath || '';
 
     this.queue = [];
 
@@ -40,7 +41,7 @@ class ThreeDModelLoader {
     // Create preview
     this.preview = new ThreeDModelLoaderPreview(
       {
-        plane: true
+        plane: this.field.threeDModelLoader.planePatternPath !== ''
       },
       {
         onIframeComplete: (() => {
@@ -50,8 +51,8 @@ class ThreeDModelLoader {
     this.$container.get(0).appendChild(this.preview.getDOM());
 
     // Update scene plane for marker
-    if (this.field.threeDModelLoader.markerPatternPath) {
-      const arMarker = H5PEditor.findField(this.field.threeDModelLoader.markerPatternPath, this.parent);
+    if (this.field.threeDModelLoader.planePatternPath) {
+      const arMarker = H5PEditor.findField(this.field.threeDModelLoader.planePatternPath, this.parent);
       if (arMarker) {
         arMarker.on('removedMarkerPattern', () => {
           this.preview.setMarkerTexture();
