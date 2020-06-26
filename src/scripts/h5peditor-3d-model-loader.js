@@ -38,11 +38,15 @@ class ThreeDModelLoader {
     this.$errors = this.$container.children().children('.h5p-errors');
 
     // Create preview
-    this.preview = new ThreeDModelLoaderPreview({
-      onIframeComplete: (() => {
-        // Potentially init stuff only now
-      })
-    });
+    this.preview = new ThreeDModelLoaderPreview(
+      {
+        plane: true
+      },
+      {
+        onIframeComplete: (() => {
+          // Potentially init stuff only now
+        })
+      });
     this.$container.get(0).appendChild(this.preview.getDOM());
 
     // Update scene plane for marker

@@ -3,7 +3,10 @@ class ThreeDModelLoaderPreview {
    * 3D Preview of model
    * @class H5PEditor.ThreeDModelLoaderPreview
    */
-  constructor(callbacks = {}) {
+  constructor(params = {}, callbacks = {}) {
+    this.params = params || {};
+    this.params.plane = this.params.plane || false;
+
     this.callbacks = callbacks || {};
     this.callbacks.onIframeComplete = callbacks.onIframeComplete || (() => {});
 
@@ -135,17 +138,19 @@ class ThreeDModelLoaderPreview {
     entityModel.appendChild(model);
     scene.appendChild(entityModel);
 
-    // Plane
-    const markerPlane = document.createElement('a-plane');
-    markerPlane.setAttribute('id', 'markerPlane');
-    markerPlane.setAttribute('position', `${ThreeDModelLoaderPreview.DEFAULT_OFFSET.x} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.y} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.z}`);
-    markerPlane.setAttribute('rotation', '-90 0 0');
-    markerPlane.setAttribute('width', '1');
-    markerPlane.setAttribute('height', '1');
-    markerPlane.setAttribute('src', ThreeDModelLoaderPreview.DEFAULT_TEXTURE);
-    markerPlane.setAttribute('shadow', '');
+    if (this.params.plane) {
+      // Plane
+      const markerPlane = document.createElement('a-plane');
+      markerPlane.setAttribute('id', 'markerPlane');
+      markerPlane.setAttribute('position', `${ThreeDModelLoaderPreview.DEFAULT_OFFSET.x} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.y} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.z}`);
+      markerPlane.setAttribute('rotation', '-90 0 0');
+      markerPlane.setAttribute('width', '1');
+      markerPlane.setAttribute('height', '1');
+      markerPlane.setAttribute('src', ThreeDModelLoaderPreview.DEFAULT_TEXTURE);
+      markerPlane.setAttribute('shadow', '');
 
-    scene.appendChild(markerPlane);
+      scene.appendChild(markerPlane);
+    }
 
     // Camera
     const entityCamera = document.createElement('a-entity');
@@ -203,6 +208,10 @@ class ThreeDModelLoaderPreview {
   setMarkerTexture(src = ThreeDModelLoaderPreview.DEFAULT_TEXTURE) {
     if (!this.isInitialized) {
       return; // Not ready
+    }
+
+    if (!this.markerPlane) {
+      return; // No marker plane
     }
 
     this.markerPlane.setAttribute('src', src);
