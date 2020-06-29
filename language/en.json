@@ -1,5 +1,6 @@
 {
   "libraryStrings": {
+    "browserCannotConvert": "You tried to upload a glTF file without embedded assets. Immediate conversion to .glb files is not supported on this browser. Please look for an alternative converter.",
     "conversionError": "Could not convert to glb format.",
     "dropFolderHere": "Drop folder with all glTF assets here",
     "fileDamaged": "Could not check the file. It might be damaged.",

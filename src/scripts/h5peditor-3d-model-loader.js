@@ -25,6 +25,10 @@ class ThreeDModelLoader {
     this.field.threeDModelLoader.geometryPath = this.field.threeDModelLoader.geometryPath || '';
     this.field.threeDModelLoader.planePatternPath = this.field.threeDModelLoader.planePatternPath || '';
 
+    // IE11 can neither handle preview nor conversion
+    this.canPreview = window.navigator.userAgent.indexOf('Trident/') === -1;
+    this.canConvert = window.navigator.userAgent.indexOf('Trident/') === -1;
+
     this.queue = [];
 
     // Create the wrapper:
@@ -39,39 +43,44 @@ class ThreeDModelLoader {
     // Errors
     this.$errors = this.$container.children().children('.h5p-errors');
 
-    // Create preview
-    this.preview = new ThreeDModelLoaderPreview(
-      {
-        plane: this.field.threeDModelLoader.planePatternPath !== ''
-      },
-      {
-        onIframeComplete: (() => {
-          // Potentially init stuff only now
-        })
-      });
-    this.$container.get(0).appendChild(this.preview.getDOM());
-
-    // Update scene plane for marker
-    if (this.field.threeDModelLoader.planePatternPath) {
-      const arMarker = H5PEditor.findField(this.field.threeDModelLoader.planePatternPath, this.parent);
-      if (arMarker) {
-        arMarker.on('removedMarkerPattern', () => {
-          this.preview.setMarkerTexture();
+    if (this.canPreview) {
+      // Create preview
+      this.preview = new ThreeDModelLoaderPreview(
+        {
+          plane: this.field.threeDModelLoader.planePatternPath !== ''
+        },
+        {
+          onIframeComplete: (() => {
+            // Potentially init stuff only now
+          })
         });
+      this.$container.get(0).appendChild(this.preview.getDOM());
 
-        arMarker.on('addedMarkerPattern', (event) => {
-          this.preview.setMarkerTexture(event.data);
-        });
+      // Update scene plane for marker
+      if (this.field.threeDModelLoader.planePatternPath) {
+        const arMarker = H5PEditor.findField(this.field.threeDModelLoader.planePatternPath, this.parent);
+        if (arMarker) {
+          arMarker.on('removedMarkerPattern', () => {
+            this.preview.setMarkerTexture();
+          });
+
+          arMarker.on('addedMarkerPattern', (event) => {
+            this.preview.setMarkerTexture(event.data);
+          });
+        }
       }
     }
 
     this.parent.ready( () => {
-      // Create dropzone
-      this.dropzone = this.dropzone || new ThreeDModelLoaderConversionDropzone((result) => {
-        this.handleConversionDone(result);
-      });
-      const container = this.$container.get(0);
-      container.parentNode.insertBefore(this.dropzone.getDOM(), container.nextSibling);
+
+      if (this.canConvert) {
+        // Create dropzone
+        this.dropzone = this.dropzone || new ThreeDModelLoaderConversionDropzone((result) => {
+          this.handleConversionDone(result);
+        });
+        const container = this.$container.get(0);
+        container.parentNode.insertBefore(this.dropzone.getDOM(), container.nextSibling);
+      }
 
       // It might be better to have a complete geometry editor widget
       const geometryPath = this.field.threeDModelLoader.geometryPath;
@@ -79,7 +88,7 @@ class ThreeDModelLoader {
       if (this.field.threeDModelLoader.geometryPath !== '') {
         // Listen for scale change
         this.rowScale = H5PEditor.findField(`${geometryPath}/scale`, this.parent);
-        if (this.rowScale) {
+        if (this.rowScale && this.canPreview) {
           this.rowScale.on('changed', (event) => {
             this.preview.setModelScale(
               parseFloat(event.data.scale) / 100
@@ -89,7 +98,7 @@ class ThreeDModelLoader {
 
         // Listen for position change
         this.rowPosition = H5PEditor.findField(`${geometryPath}/position`, this.parent);
-        if (this.rowPosition) {
+        if (this.rowPosition && this.canPreview) {
           this.rowPosition.on('changed', (event) => {
             this.preview.setModelPosition({
               x: parseFloat(event.data.x),
@@ -101,7 +110,7 @@ class ThreeDModelLoader {
 
         // Listen for rotation change
         this.rowRotation = H5PEditor.findField(`${geometryPath}/rotation`, this.parent);
-        if (this.rowRotation) {
+        if (this.rowRotation && this.canPreview) {
           this.rowRotation.on('changed', (event) => {
             this.preview.setModelRotation({
               x: parseFloat(event.data.x),
@@ -136,7 +145,10 @@ class ThreeDModelLoader {
     });
 
     this.fieldInstance.on('uploadProgress', () => {
-      this.preview.hide();
+      if (this.canPreview) {
+        this.preview.hide();
+      }
+
       this.resetGeometry();
     });
 
@@ -171,8 +183,11 @@ class ThreeDModelLoader {
    * Reset model.
    */
   resetModel() {
-    this.preview.setModel();
-    this.preview.hide();
+    if (this.canPreview) {
+      this.preview.setModel();
+      this.preview.hide();
+    }
+
     this.resetGeometry();
   }
 
@@ -184,9 +199,15 @@ class ThreeDModelLoader {
     const extension = path.replace(/#tmp$/, '').split('.').pop().toLowerCase();
 
     this.showFileIcon(extension);
-    this.dropzone.hide();
-    this.preview.setModel(path, this.getGeometry());
-    this.preview.show();
+
+    if (this.canConvert) {
+      this.dropzone.hide();
+    }
+
+    if (this.canPreview) {
+      this.preview.setModel(path, this.getGeometry());
+      this.preview.show();
+    }
   }
 
   /**
@@ -221,7 +242,10 @@ class ThreeDModelLoader {
     if (this.field.threeDModelLoader.fileTypeExtensions.indexOf(extension) === -1) {
       this.$errors.append(H5PEditor.createError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'filetypeNotSupported')));
       this.removeFile();
-      this.dropzone.hide();
+
+      if (this.canConvert) {
+        this.dropzone.hide();
+      }
 
       return;
     }
@@ -257,8 +281,14 @@ class ThreeDModelLoader {
 
             // Can't upload multiple files or zip files, offer conversion
             if (!this.isGLTFEmbeddedFormat(json)) {
-              this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'onlyEmbeddedAssets'));
-              this.handleEmbeddedAssets();
+              if (this.canConvert) {
+                this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'onlyEmbeddedAssets'));
+                this.handleEmbeddedAssets();
+              }
+              else {
+                this.handleError(H5PEditor.t('H5PEditor.ThreeDModelLoader', 'browserCannotConvert'));
+              }
+
               return;
             }
           }
@@ -286,7 +316,9 @@ class ThreeDModelLoader {
    */
   handleEmbeddedAssets() {
     // Add dropzone to DOM
-    this.dropzone.show();
+    if (this.canConvert) {
+      this.dropzone.show();
+    }
   }
 
   /**
@@ -303,7 +335,10 @@ class ThreeDModelLoader {
 
     // Hope all's sanitized here with the file
     this.fieldInstance.upload(result.file, 'foo.glb');
-    this.dropzone.hide();
+
+    if (this.canConvert) {
+      this.dropzone.hide();
+    }
   }
 
   /**
