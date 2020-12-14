@@ -19,18 +19,18 @@
   "author": "Oliver Tacke",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.11.0",
-    "@babel/preset-env": "^7.11.0",
-    "babel-loader": "^8.0.6",
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.10",
+    "babel-loader": "^8.2.2",
     "babel-minify-webpack-plugin": "^0.3.1",
     "cross-env": "^5.2.1",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
     "mini-css-extract-plugin": "^0.4.4",
-    "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "resolve-url-loader": "^3.1.1",
-    "webpack": "^4.44.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "resolve-url-loader": "^3.1.2",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.10"
   }
 }
