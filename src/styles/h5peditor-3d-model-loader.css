@@ -5,7 +5,7 @@
 }
 
 .h5peditor-3d-model-loader-container .file.threeDModelLoader {
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
 
 .h5p-editor-3d-model-loader-preview-iframe {
