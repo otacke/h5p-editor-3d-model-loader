@@ -1,6 +1,6 @@
 {
   "name": "h5p-editor-3d-model-loader",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "description": "Load a 3D model",
   "private": true,
   "scripts": {
