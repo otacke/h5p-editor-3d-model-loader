@@ -14,7 +14,7 @@ class ThreeDModelLoaderGLTF2GLB {
   constructor() {
     this.remainingFilesToProcess = 0;
     this.files = [];
-    this.fileblobs=[];
+    this.fileblobs = [];
     this.glbfilename;
     this.gltf;
     this.outputBuffers;
@@ -203,7 +203,7 @@ class ThreeDModelLoaderGLTF2GLB {
 
     for (let i = 0, a = this.gltf.bufferViews; i < a.length; i++) {
       const bufferView = a[i];
-      if (bufferView.byteOffset=== undefined) {
+      if (bufferView.byteOffset === undefined) {
         bufferView.byteOffset = 0;
       }
       else {

@@ -379,7 +379,7 @@ class ThreeDModelLoader {
   findObjects(obj, key, val) {
     let objects = [];
     for (var i in obj) {
-      if (!obj.hasOwnProperty(i)) {
+      if (Object.prototype.hasOwnProperty.call(obj, i)) {
         continue;
       }
 

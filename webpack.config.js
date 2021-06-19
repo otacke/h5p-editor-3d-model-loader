@@ -31,6 +31,7 @@ module.exports = {
     filename: 'h5peditor-3d-model-loader.js',
     path: path.resolve(__dirname, 'dist')
   },
+  target: ['web', 'es5'], // Damn you, IE11!
   module: {
     rules: [
       {
