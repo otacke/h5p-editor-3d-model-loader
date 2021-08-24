@@ -54,7 +54,25 @@ class ThreeDModelLoader {
             // Potentially init stuff only now
           })
         });
-      this.$container.get(0).appendChild(this.preview.getDOM());
+
+      // Insert preview iframe
+      this.filePreview = this.fieldInstance.$file.get(0);
+      this.modelPreview = document.createElement('div');
+      this.modelPreview.classList.add('h5peditor-3d-model-loader-preview-wrapper');
+      this.modelPreview.classList.add('h5peditor-3d-model-loader-display-none');
+
+      this.modelPreview.appendChild(this.preview.getDOM());
+      this.filePreview.parentNode.insertBefore(this.modelPreview, this.filePreview);
+
+      const removeModelButton = document.createElement('button');
+      removeModelButton.classList.add('h5peditor-3d-model-loader-button-remove-model');
+      removeModelButton.addEventListener('click', () => {
+        this.fieldInstance.confirmRemovalDialog.show(H5P.jQuery(removeModelButton).offset().top);
+      });
+      this.fieldInstance.confirmRemovalDialog.on('confirmed', () => {
+        this.filePreview.classList.remove('h5peditor-3d-model-loader-display-none');
+      });
+      this.modelPreview.append(removeModelButton);
 
       // Update scene plane for marker
       if (this.field.threeDModelLoader.planePatternPath) {
@@ -147,6 +165,7 @@ class ThreeDModelLoader {
     this.fieldInstance.on('uploadProgress', () => {
       if (this.canPreview) {
         this.preview.hide();
+        this.modelPreview.classList.add('h5peditor-3d-model-loader-display-none');
       }
 
       this.resetGeometry();
@@ -186,6 +205,7 @@ class ThreeDModelLoader {
     if (this.canPreview) {
       this.preview.setModel();
       this.preview.hide();
+      this.modelPreview.classList.add('h5peditor-3d-model-loader-display-none');
     }
 
     this.resetGeometry();
@@ -196,17 +216,20 @@ class ThreeDModelLoader {
    * @param {string} path Full URL path to model file.
    */
   setModel(path) {
-    const extension = path.replace(/#tmp$/, '').split('.').pop().toLowerCase();
-
-    this.showFileIcon(extension);
-
     if (this.canConvert) {
       this.dropzone.hide();
     }
 
     if (this.canPreview) {
+      this.filePreview.classList.add('h5peditor-3d-model-loader-display-none');
       this.preview.setModel(path, this.getGeometry());
       this.preview.show();
+      this.modelPreview.classList.remove('h5peditor-3d-model-loader-display-none');
+    }
+    else {
+      this.filePreview.classList.remove('h5peditor-3d-model-loader-display-none');
+      const extension = path.replace(/#tmp$/, '').split('.').pop().toLowerCase();
+      this.showFileIcon(extension);
     }
   }
 

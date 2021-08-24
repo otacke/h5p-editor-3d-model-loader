@@ -27,7 +27,7 @@ class ThreeDModelLoaderPreview {
    */
   buildIframe() {
     const iframe = document.createElement('iframe');
-    iframe.classList.add('h5p-editor-3d-model-loader-preview-iframe');
+    iframe.classList.add('h5peditor-3d-model-loader-preview-iframe');
 
     iframe.addEventListener('load', () => {
       if (this.iframeLoaded) {
@@ -113,8 +113,8 @@ class ThreeDModelLoaderPreview {
     body.style.margin = '0';
     body.style.overflow = 'hidden';
     body.style.padding = '0';
-    body.style.height = '144px';
-    body.style.width = '256px';
+    body.style.height = '100%';
+    body.style.width = '100%';
 
     body.appendChild(this.buildScene());
 
