@@ -51,7 +51,7 @@ class ThreeDModelLoader {
         },
         {
           onIframeComplete: (() => {
-            // Potentially init stuff only now
+            this.handleIframeCompleted();
           })
         });
 
@@ -84,6 +84,7 @@ class ThreeDModelLoader {
 
           arMarker.on('addedMarkerPattern', (event) => {
             this.preview.setMarkerTexture(event.data);
+            this.previewQueuePlane = event.data;
           });
         }
       }
@@ -160,6 +161,7 @@ class ThreeDModelLoader {
       }
 
       this.setModel(event.path);
+      this.previewQueueModel = event.path;
     });
 
     this.fieldInstance.on('uploadProgress', () => {
@@ -252,6 +254,19 @@ class ThreeDModelLoader {
         z: parseFloat(this.rowRotation.children[2].$input.val()),
       }
     };
+  }
+
+  /**
+   * Handle iframe completed.
+   */
+  handleIframeCompleted() {
+    // Image loaded events may have been quicker
+    if (this.previewQueuePlane) {
+      this.preview.setMarkerTexture(this.previewQueuePlane);
+    }
+    if (this.previewQueueModel) {
+      this.setModel(this.previewQueueModel);
+    }
   }
 
   /**

@@ -57,7 +57,7 @@ class ThreeDModelLoaderPreview {
 
       this.iframeDocument = iframe.contentDocument ? iframe.contentDocument : iframeWindow;
 
-      this.handleIframeComplete();
+      this.handleIframeWritten();
     }
     catch (error) {
       console.warn(error);
@@ -165,26 +165,28 @@ class ThreeDModelLoaderPreview {
   /**
    * Handle iframe complete. Depends on load timing.
    */
-  handleIframeComplete() {
+  handleIframeWritten() {
     if (this.iframeDocument.readyState !== 'complete') {
       this.iframeDocument.addEventListener('readystatechange', () => {
         if (this.iframeDocument.readyState === 'complete') {
-
-          this.model = this.iframeDocument.querySelector('#model');
-          this.markerPlane = this.iframeDocument.querySelector('#markerPlane');
-
-          this.isInitialized = true;
-          this.callbacks.iframeComplete();
+          this.handleIframeCompleted();
         }
       });
     }
     else {
-      this.model = this.iframeDocument.querySelector('#model');
-      this.markerPlane = this.iframeDocument.querySelector('#markerPlane');
-
-      this.isInitialized = true;
-      this.callbacks.onIframeComplete();
+      this.handleIframeCompleted();
     }
+  }
+
+  /**
+   * Handle iframe completed.
+   */
+  handleIframeCompleted() {
+    this.model = this.iframeDocument.querySelector('#model');
+    this.markerPlane = this.iframeDocument.querySelector('#markerPlane');
+
+    this.isInitialized = true;
+    this.callbacks.onIframeComplete();
   }
 
   /**
