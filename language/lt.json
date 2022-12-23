@@ -1,0 +1,13 @@
+{
+  "libraryStrings": {
+    "browserCannotConvert": "You tried to upload a glTF file without embedded assets. Immediate conversion to .glb files is not supported on this browser. Please look for an alternative converter.",
+    "conversionError": "Nepavyko konvertuoti į glb formatą.",
+    "dropFolderHere": "Čia meskite aplanką su visais glTF ištekliais",
+    "fileDamaged": "Nepavyko patikrinti failo. Jis gali būti sugadintas.",
+    "filetypeNotSupported": "Atrodo, kad šis failas nepalaikomas 3D modelio tipas.",
+    "noGLTFFound": "Šiame aplanke nėra glTF failo",
+    "notAFolder": "Tai nebuvo aplankas.",
+    "onlyEmbeddedAssets": "You tried to upload a glTF file without embedded assets. It should be inside a folder with other files. Drop that folder onto the dropzone to create a single file that can be used.",
+    "onlyVersionTwo": "Šis glTF failas yra 1.0 versijos. Konvertuokite jį į 2.0 versiją, kad galėtumėte jį naudoti čia."
+  }
+}
