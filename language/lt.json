@@ -1,6 +1,6 @@
 {
   "libraryStrings": {
-    "browserCannotConvert": "You tried to upload a glTF file without embedded assets. Immediate conversion to .glb files is not supported on this browser. Please look for an alternative converter.",
+    "browserCannotConvert": "Jūs bandėte įkelti glTF failą be įterptųjų išteklių. Greitas konvertavimas į .glb failus šioje naršyklėje nepalaikomas. Ieškokite alternatyvaus keitiklio.",
     "conversionError": "Nepavyko konvertuoti į glb formatą.",
     "dropFolderHere": "Čia meskite aplanką su visais glTF ištekliais",
     "fileDamaged": "Nepavyko patikrinti failo. Jis gali būti sugadintas.",
