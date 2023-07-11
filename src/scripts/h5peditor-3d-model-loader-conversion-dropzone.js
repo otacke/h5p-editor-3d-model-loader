@@ -1,4 +1,4 @@
-import ThreeDModelLoaderGLTF2GLB from './h5peditor-3d-model-loader-gltf2glb.js';
+import ThreeDModelLoaderGLTF2GLB from '@scripts/h5peditor-3d-model-loader-gltf2glb.js';
 
 class ThreeDModelLoaderConversionDropzone {
   /**
@@ -32,7 +32,7 @@ class ThreeDModelLoaderConversionDropzone {
 
   /**
    * Get scene DOM.
-   * @return {HTMLElement} Scene DOM.
+   * @returns {HTMLElement} Scene DOM.
    */
   getDOM() {
     return this.container;

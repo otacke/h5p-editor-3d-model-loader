@@ -1,6 +1,8 @@
 class ThreeDModelLoaderPreview {
   /**
    * 3D Preview of model
+   * @param {object} [params] Parameters.
+   * @param {object} [callbacks] Callbacks.
    * @class H5PEditor.ThreeDModelLoaderPreview
    */
   constructor(params = {}, callbacks = {}) {
@@ -15,7 +17,7 @@ class ThreeDModelLoaderPreview {
 
   /**
    * Get scene DOM.
-   * @return {HTMLElement} Scene DOM.
+   * @returns {HTMLElement} Scene DOM.
    */
   getDOM() {
     return this.iframe;
@@ -23,7 +25,7 @@ class ThreeDModelLoaderPreview {
 
   /**
    * Build iframe.
-   * @param {HTMLElement} iframe.
+   * @returns {HTMLElement} iframe.
    */
   buildIframe() {
     const iframe = document.createElement('iframe');
@@ -66,7 +68,7 @@ class ThreeDModelLoaderPreview {
 
   /**
    * Build HTML for iframe.
-   * @return {HTMLElement}
+   * @returns {HTMLElement} HTML for iframe.
    */
   buildHTML() {
     const html = document.createElement('html');
@@ -78,7 +80,7 @@ class ThreeDModelLoaderPreview {
 
   /**
    * Build Header.
-   * @return {HTMLElement} Header.
+   * @returns {HTMLElement} Header.
    */
   buildHeader() {
     const head = document.createElement('head');
@@ -105,7 +107,7 @@ class ThreeDModelLoaderPreview {
 
   /**
    * Build body.
-   * @return {HTMLElement} Body.
+   * @returns {HTMLElement} Body.
    */
   buildBody() {
     const body = document.createElement('body');
@@ -123,7 +125,7 @@ class ThreeDModelLoaderPreview {
 
   /**
    * Build Scene.
-   * @return {HTMLElement} Scene.
+   * @returns {HTMLElement} Scene.
    */
   buildScene() {
     // Scene
@@ -236,7 +238,7 @@ class ThreeDModelLoaderPreview {
 
     // Get potential cross-origin source
     const element = document.createElement('div');
-    H5P.setSource(element, {path:path}, H5PEditor.contentId);
+    H5P.setSource(element, { path:path }, H5PEditor.contentId);
     const src = element.src;
 
     if (!src) {
@@ -312,7 +314,7 @@ class ThreeDModelLoaderPreview {
 }
 
 // Default offset
-ThreeDModelLoaderPreview.DEFAULT_OFFSET = {x: 0, y: -1, z: 0};
+ThreeDModelLoaderPreview.DEFAULT_OFFSET = { x: 0, y: -1, z: 0 };
 
 // White texture
 ThreeDModelLoaderPreview.DEFAULT_TEXTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btSoVBzOIOGSogmBBVMRRq1CECqFWaNXB5NIPoUlDkuLiKLgWHPxYrDq4OOvq4CoIgh8gTo5Oii5S4v+SQosYD4778e7e4+4dEKyVmGa1jQGabpupRFzMZFfE8Cs6EIGAEXTJzDJmJSkJ3/F1jwBf72I8y//cn6NHzVkMCIjEM8wwbeJ14qlN2+C8TyywoqwSnxOPmnRB4keuKx6/cS64HOSZgplOzRELxGKhhZUWZkVTI54kjqqaTvnBjMcq5y3OWqnCGvfkL4zk9OUlrtMcRAILWIQEEQoq2EAJNmK06qRYSNF+3Mc/4Polcink2gAjxzzK0CC7fvA/+N2tlZ8Y95IicaD9xXE+hoDwLlCvOs73sePUT4DQM3ClN/3lGjD9SXq1qUWPgN5t4OK6qSl7wOUO0P9kyKbsSiGawXweeD+jb8oCfbdA96rXW2Mfpw9AmrpK3gAHh8BwgbLXfN7d2drbv2ca/f0ARjFylR0Z2fIAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfkBgwUKTdjQ4hkAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAAxJREFUCNdj+P//PwAF/gL+3MxZ5wAAAABJRU5ErkJggg==';

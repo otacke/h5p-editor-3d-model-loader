@@ -1,16 +1,14 @@
-import ThreeDModelLoaderConversionDropzone from './h5peditor-3d-model-loader-conversion-dropzone.js';
-import ThreeDModelLoaderPreview from './h5peditor-3d-model-loader-preview.js';
+import ThreeDModelLoaderConversionDropzone from '@scripts/h5peditor-3d-model-loader-conversion-dropzone.js';
+import ThreeDModelLoaderPreview from '@scripts/h5peditor-3d-model-loader-preview.js';
 
 class ThreeDModelLoader {
   /**
    * Used to load additional GLTF resources
    * @class H5PEditor.ThreeDModelLoader
-   *
    * @param {object} parent Parent object in semantics hierarchy.
    * @param {object} field Fields in semantics where widget is used.
    * @param {object} params Parameters of form.
    * @param {function} setValue Callback to update the form value.
-   *
    * @throws {Error} No image found.
    */
   constructor(parent, field, params, setValue) {
@@ -188,12 +186,12 @@ class ThreeDModelLoader {
    * Reset geometry.
    */
   resetGeometry() {
-    [this.rowScale, this.rowPosition, this.rowRotation].forEach(row => {
+    [this.rowScale, this.rowPosition, this.rowRotation].forEach((row) => {
       if (!row) {
         return;
       }
 
-      row.children.forEach(child => {
+      row.children.forEach((child) => {
         child.$input.val(child.field.default);
         child.$input.change();
       });
@@ -237,7 +235,7 @@ class ThreeDModelLoader {
 
   /**
    * Get current geometry.
-   * @return {object} Geometry data.
+   * @returns {object} Geometry data.
    */
   getGeometry() {
     // Yes, you'd make sure the children are in place and number fields...
@@ -296,7 +294,7 @@ class ThreeDModelLoader {
     if (extension === 'gltf') {
       // Get potential cross-origin source
       const element = document.createElement('div');
-      H5P.setSource(element, {path: path}, H5PEditor.contentId);
+      H5P.setSource(element, { path: path }, H5PEditor.contentId);
       const src = element.src;
 
       // Try to parse JSON from file
@@ -382,7 +380,7 @@ class ThreeDModelLoader {
   /**
    * Check JSON of GLTF file for being embedded format.
    * @param {object} json GLTF file as JSON object.
-   * @return {boolean} True, if is embedded format, else false.
+   * @returns {boolean} True, if is embedded format, else false.
    */
   isGLTFEmbeddedFormat(json) {
     const objects = this.findObjects(json, 'uri', '');
@@ -396,7 +394,7 @@ class ThreeDModelLoader {
   /**
    * Check JSON of GLTF file for version strings.
    * @param {object} json GLTF file as JSON object.
-   * @return {boolean} True, if no version is of 1.0.
+   * @returns {boolean} True, if no version is of 1.0.
    */
   isGLTFVersionTwo(json) {
     const objects = this.findObjects(json, 'version', '');
@@ -413,6 +411,7 @@ class ThreeDModelLoader {
    * @param {object} obj Object to search in.
    * @param {string} key Key to search for.
    * @param {string} val Value to search for.
+   * @returns {object[]} Objects.
    */
   findObjects(obj, key, val) {
     let objects = [];
@@ -502,7 +501,7 @@ class ThreeDModelLoader {
 
   /**
    * Validate current values. Invoked by H5P core.
-   * @return {boolean} True, if current value is valid, else false.
+   * @returns {boolean} True, if current value is valid, else false.
    */
   validate() {
     return this.fieldInstance.validate();

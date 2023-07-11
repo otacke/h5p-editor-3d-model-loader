@@ -1,9 +1,3 @@
-.h5peditor-3d-model-loader-container {
-}
-
-.h5peditor-3d-model-loader-container .file.threeDModelLoader {
-}
-
 .h5peditor-3d-model-loader-preview-wrapper {
   margin-bottom: 0.5em;
   position: relative;
@@ -36,7 +30,7 @@
 .h5peditor-3d-model-loader-button-remove-model::before {
   color: #fff;
   content: "\e890";
-  font-family: "H5P";
+  font-family: "H5P", sans-serif;
   font-size: 2em;
   opacity: .6;
   text-shadow: rgb(0 0 0 / 40%) 0 0 4px, rgb(0 0 0 / 40%) 0 0 4px, rgb(0 0 0 / 40%) 0 0 4px;

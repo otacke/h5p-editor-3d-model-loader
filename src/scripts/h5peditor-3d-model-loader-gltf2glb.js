@@ -5,7 +5,6 @@
  * https://github.com/sbtron/makeglb
  * The MIT License
  * Copyright (c) 2017 Saurabh Bhatia
- *
  */
 class ThreeDModelLoaderGLTF2GLB {
   /**
@@ -96,7 +95,7 @@ class ThreeDModelLoaderGLTF2GLB {
           reader.readAsArrayBuffer(file);
         }
       }, (error) => {
-        this.callback({error: error});
+        this.callback({ error: error });
       });
     }
     else if (item.isDirectory) {
@@ -138,7 +137,7 @@ class ThreeDModelLoaderGLTF2GLB {
 
   /**
    * Process all buffers.
-   * @return {Promise} Result.
+   * @returns {Promise} Result.
    */
   processBuffers() {
     if (!this.gltf) {
@@ -195,6 +194,7 @@ class ThreeDModelLoaderGLTF2GLB {
 
   /**
    * Build output file from buffer.
+   * @returns {Blob} File blob.
    */
   buildOutputFile() {
     const Binary = {
@@ -278,13 +278,13 @@ class ThreeDModelLoaderGLTF2GLB {
       }
     }
 
-    return new Blob([finalBuffer], {type: 'model/json-binary'});
+    return new Blob([finalBuffer], { type: 'model/json-binary' });
   }
 
   /**
    * Check for base64 encoding.
    * @param {string} uri URI to check for encoding.
-   * @return {boolean} True if URI is base64 encoded.
+   * @returns {boolean} True if URI is base64 encoded.
    */
   isBase64(uri) {
     return (uri.length < 5) ? false : uri.substr(0, 5) === 'data:';
@@ -293,7 +293,7 @@ class ThreeDModelLoaderGLTF2GLB {
   /**
    * Decode URI from base64 encoding.
    * @param {string} uri URI to decode.
-   * @return {Promise} Response.
+   * @returns {Promise} Response.
    */
   decodeBase64(uri) {
     return fetch(uri).then((response) => response.arrayBuffer());
@@ -302,7 +302,7 @@ class ThreeDModelLoaderGLTF2GLB {
   /**
    * Get data from buffer URI.
    * @param {object} buffer Buffer.
-   * @return {Promise} Result.
+   * @returns {Promise} Result.
    */
   getDataFromUri(buffer) {
     if (buffer.uri === undefined) {
@@ -319,8 +319,8 @@ class ThreeDModelLoaderGLTF2GLB {
 
   /**
    * Get aligned value.
-   * @param {number} Value.
-   * @return {number} Aligned value.
+   * @param {number} value Value.
+   * @returns {number} Aligned value.
    */
   getAlignedLength(value) {
     if (value === 0) {
@@ -334,8 +334,8 @@ class ThreeDModelLoaderGLTF2GLB {
 
   /**
    * Get MIME type.
-   * @param {string} filename.
-   * @return {string} MIME type.
+   * @param {string} filename File name.
+   * @returns {string} MIME type.
    */
   getMimeType(filename) {
     for (let mimeType in this.gltfMimeTypes) {
