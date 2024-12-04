@@ -272,7 +272,7 @@ class ThreeDModelLoader {
    * @param {string} path Path to model.
    */
   handleFileUploaded(path) {
-    const extension = path.split('#').slice(0, -1).join('#').split('.').slice(-1)[0].toLowerCase();
+    const extension = path.split('#')[0].split('.').pop().toLowerCase();
 
     // Only gltf supported
     if (this.field.threeDModelLoader.fileTypeExtensions.indexOf(extension) === -1) {
