@@ -1,0 +1,13 @@
+{
+  "libraryStrings": {
+    "browserCannotConvert": "Ați încercat să încărcați un fișier glTF fără resurse încorporate. Conversia imediată în fișiere .glb nu este suportată în acest browser. Vă rugăm să căutați un convertor alternativ.",
+    "conversionError": "Nu s-a putut realiza conversia în formatul glb.",
+    "dropFolderHere": "Glisați aici folderul cu toate resursele glTF",
+    "fileDamaged": "Fișierul nu a putut fi verificat. Este posibil să fie deteriorat.",
+    "filetypeNotSupported": "Acest tip de fișier nu pare a fi un model 3D suportat.",
+    "noGLTFFound": "Nu s-a găsit niciun fișier glTF în acest folder.",
+    "notAFolder": "Acesta nu este un folder.",
+    "onlyEmbeddedAssets": "Ați încercat să încărcați un fișier glTF fără resurse încorporate. Acesta trebuie să fie într-un folder împreună cu celelalte fișiere. Glisați folderul respectiv în zona de încărcare pentru a crea un singur fișier care poate fi utilizat.",
+    "onlyVersionTwo": "Acest fișier glTF este versiunea 1.0. Vă rugăm să îl convertiți la versiunea 2.0 pentru a-l putea utiliza aici."
+  }
+}
