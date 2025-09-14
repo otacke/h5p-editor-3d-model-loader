@@ -1,6 +1,6 @@
 import ThreeDModelLoaderGLTF2GLB from '@scripts/h5peditor-3d-model-loader-gltf2glb.js';
 
-class ThreeDModelLoaderConversionDropzone {
+export default class ThreeDModelLoaderConversionDropzone {
   /**
    * Dropzone to convert folders with gltf assets to glb
    * @class H5PEditor.ThreeDModelLoaderConversionDropzone
@@ -75,5 +75,3 @@ class ThreeDModelLoaderConversionDropzone {
     });
   }
 }
-
-export default ThreeDModelLoaderConversionDropzone;

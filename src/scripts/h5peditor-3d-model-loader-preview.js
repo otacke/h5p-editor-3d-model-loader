@@ -1,4 +1,14 @@
-class ThreeDModelLoaderPreview {
+/** @constant {number} SCALE_MIN Minimum scale. */
+const SCALE_MIN = 0.01;
+
+/** @constant {object} DEFAULT_OFFSET Default offset. */
+const DEFAULT_OFFSET = { x: 0, y: -1, z: 0 };
+
+/** @constant {string} DEFAULT_TEXTURE Default texture white. */
+// eslint-disable-next-line @stylistic/js/max-len
+const DEFAULT_TEXTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btSoVBzOIOGSogmBBVMRRq1CECqFWaNXB5NIPoUlDkuLiKLgWHPxYrDq4OOvq4CoIgh8gTo5Oii5S4v+SQosYD4778e7e4+4dEKyVmGa1jQGabpupRFzMZFfE8Cs6EIGAEXTJzDJmJSkJ3/F1jwBf72I8y//cn6NHzVkMCIjEM8wwbeJ14qlN2+C8TyywoqwSnxOPmnRB4keuKx6/cS64HOSZgplOzRELxGKhhZUWZkVTI54kjqqaTvnBjMcq5y3OWqnCGvfkL4zk9OUlrtMcRAILWIQEEQoq2EAJNmK06qRYSNF+3Mc/4Polcink2gAjxzzK0CC7fvA/+N2tlZ8Y95IicaD9xXE+hoDwLlCvOs73sePUT4DQM3ClN/3lGjD9SXq1qUWPgN5t4OK6qSl7wOUO0P9kyKbsSiGawXweeD+jb8oCfbdA96rXW2Mfpw9AmrpK3gAHh8BwgbLXfN7d2drbv2ca/f0ARjFylR0Z2fIAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfkBgwUKTdjQ4hkAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAAxJREFUCNdj+P//PwAF/gL+3MxZ5wAAAABJRU5ErkJggg==';
+
+export default class ThreeDModelLoaderPreview {
   /**
    * 3D Preview of model
    * @param {object} [params] Parameters.
@@ -111,6 +121,7 @@ class ThreeDModelLoaderPreview {
    */
   buildBody() {
     const body = document.createElement('body');
+    // eslint-disable-next-line @stylistic/js/max-len
     body.style.background = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TtVIqDnYQcQhSnSxIFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi5Oik6CIl/i8ptIj14Lgf7+497t4BQr3MNKtrAtB020wl4mImuyoGXtGDEIKIYURmljEnSUl0HF/38PH1LsqzOp/7c/SpOYsBPpF4lhmmTbxBPL1pG5z3icOsKKvE58TjJl2Q+JHrisdvnAsuCzwzbKZT88RhYrHQxkobs6KpEU8RR1RNp3wh47HKeYuzVq6y5j35C0M5fWWZ6zSHkcAiliBBhIIqSijDRpRWnRQLKdqPd/APuX6JXAq5SmDkWEAFGmTXD/4Hv7u18pMxLykUB7pfHOdjFAjsAo2a43wfO07jBPA/A1d6y1+pAzOfpNdaWuQI6N8GLq5bmrIHXO4Ag0+GbMqu5Kcp5PPA+xl9UxYYuAWCa15vzX2cPgBp6ip5AxwcAmMFyl7v8O7e9t7+PdPs7weB03KtCTN/SAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+QGDAsAMkAVB00AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAPklEQVRIx2M8ceIEAynA1NSUJPVMDDQGoxaMWjBqwagFoxZQAzD+/fuXJA2k1h+jcTBqwagFoxaMWjAkLAAAEQ8IhUX6aEEAAAAASUVORK5CYII=")';
     body.style.margin = '0';
     body.style.overflow = 'hidden';
@@ -144,11 +155,11 @@ class ThreeDModelLoaderPreview {
       // Plane
       const markerPlane = document.createElement('a-plane');
       markerPlane.setAttribute('id', 'markerPlane');
-      markerPlane.setAttribute('position', `${ThreeDModelLoaderPreview.DEFAULT_OFFSET.x} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.y} ${ThreeDModelLoaderPreview.DEFAULT_OFFSET.z}`);
+      markerPlane.setAttribute('position', `${DEFAULT_OFFSET.x} ${DEFAULT_OFFSET.y} ${DEFAULT_OFFSET.z}`);
       markerPlane.setAttribute('rotation', '-90 0 0');
       markerPlane.setAttribute('width', '1');
       markerPlane.setAttribute('height', '1');
-      markerPlane.setAttribute('src', ThreeDModelLoaderPreview.DEFAULT_TEXTURE);
+      markerPlane.setAttribute('src', DEFAULT_TEXTURE);
       markerPlane.setAttribute('shadow', '');
 
       scene.appendChild(markerPlane);
@@ -209,7 +220,7 @@ class ThreeDModelLoaderPreview {
    * Set marker texture. If no src parameter, remove texure.
    * @param {string} [src] Base64 encoded image source path.
    */
-  setMarkerTexture(src = ThreeDModelLoaderPreview.DEFAULT_TEXTURE) {
+  setMarkerTexture(src = DEFAULT_TEXTURE) {
     if (!this.isInitialized) {
       return; // Not ready
     }
@@ -273,7 +284,7 @@ class ThreeDModelLoaderPreview {
       return;
     }
 
-    scale = Math.max(0.01, scale);
+    scale = Math.max(SCALE_MIN, scale);
 
     this.model.setAttribute('scale', `${scale} ${scale} ${scale}`);
   }
@@ -290,9 +301,9 @@ class ThreeDModelLoaderPreview {
       return;
     }
 
-    const x = coordinates.x + ThreeDModelLoaderPreview.DEFAULT_OFFSET.x;
-    const y = coordinates.y + ThreeDModelLoaderPreview.DEFAULT_OFFSET.y;
-    const z = coordinates.z + ThreeDModelLoaderPreview.DEFAULT_OFFSET.z;
+    const x = coordinates.x + DEFAULT_OFFSET.x;
+    const y = coordinates.y + DEFAULT_OFFSET.y;
+    const z = coordinates.z + DEFAULT_OFFSET.z;
 
     this.model.setAttribute('position', `${x} ${y} ${z}`);
   }
@@ -312,11 +323,3 @@ class ThreeDModelLoaderPreview {
     this.model.setAttribute('rotation', `${angles.x} ${angles.y} ${angles.z}`);
   }
 }
-
-// Default offset
-ThreeDModelLoaderPreview.DEFAULT_OFFSET = { x: 0, y: -1, z: 0 };
-
-// White texture
-ThreeDModelLoaderPreview.DEFAULT_TEXTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9btSoVBzOIOGSogmBBVMRRq1CECqFWaNXB5NIPoUlDkuLiKLgWHPxYrDq4OOvq4CoIgh8gTo5Oii5S4v+SQosYD4778e7e4+4dEKyVmGa1jQGabpupRFzMZFfE8Cs6EIGAEXTJzDJmJSkJ3/F1jwBf72I8y//cn6NHzVkMCIjEM8wwbeJ14qlN2+C8TyywoqwSnxOPmnRB4keuKx6/cS64HOSZgplOzRELxGKhhZUWZkVTI54kjqqaTvnBjMcq5y3OWqnCGvfkL4zk9OUlrtMcRAILWIQEEQoq2EAJNmK06qRYSNF+3Mc/4Polcink2gAjxzzK0CC7fvA/+N2tlZ8Y95IicaD9xXE+hoDwLlCvOs73sePUT4DQM3ClN/3lGjD9SXq1qUWPgN5t4OK6qSl7wOUO0P9kyKbsSiGawXweeD+jb8oCfbdA96rXW2Mfpw9AmrpK3gAHh8BwgbLXfN7d2drbv2ca/f0ARjFylR0Z2fIAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfkBgwUKTdjQ4hkAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAAxJREFUCNdj+P//PwAF/gL+3MxZ5wAAAABJRU5ErkJggg==';
-
-export default ThreeDModelLoaderPreview;

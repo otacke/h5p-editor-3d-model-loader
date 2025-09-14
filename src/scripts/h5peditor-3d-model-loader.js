@@ -1,7 +1,16 @@
 import ThreeDModelLoaderConversionDropzone from '@scripts/h5peditor-3d-model-loader-conversion-dropzone.js';
 import ThreeDModelLoaderPreview from '@scripts/h5peditor-3d-model-loader-preview.js';
 
-class ThreeDModelLoader {
+/** @constant {number} XHR_DONE XHR done state. */
+const XHR_DONE = 4;
+
+/** @constant {number} IMAGE_LOADING_TIMEOUT Timeout for loading image. */
+const IMAGE_LOADING_TIMEOUT = 500;
+
+/** @constant {number} IMAGE_LOADING_REPEAT_MS Repeat interval for loading image. */
+const IMAGE_LOADING_REPEAT_MS = 20;
+
+export default class ThreeDModelLoader {
   /**
    * Used to load additional GLTF resources
    * @class H5PEditor.ThreeDModelLoader
@@ -19,7 +28,8 @@ class ThreeDModelLoader {
 
     // Sanitize field parameters
     this.field.threeDModelLoader = this.field.threeDModelLoader || {};
-    this.field.threeDModelLoader.fileTypeExtensions = this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
+    this.field.threeDModelLoader.fileTypeExtensions =
+      this.field.threeDModelLoader.fileTypeExtensions || ['gltf', 'glb'];
     this.field.threeDModelLoader.geometryPath = this.field.threeDModelLoader.geometryPath || '';
     this.field.threeDModelLoader.planePatternPath = this.field.threeDModelLoader.planePatternPath || '';
 
@@ -31,7 +41,7 @@ class ThreeDModelLoader {
 
     // Create the wrapper:
     this.$container = H5P.jQuery('<div>', {
-      'class': 'field h5peditor-3d-model-loader-container'
+      'class': 'field h5peditor-3d-model-loader-container',
     });
 
     const widgetName = this.field.type;
@@ -45,12 +55,12 @@ class ThreeDModelLoader {
       // Create preview
       this.preview = new ThreeDModelLoaderPreview(
         {
-          plane: this.field.threeDModelLoader.planePatternPath !== ''
+          plane: this.field.threeDModelLoader.planePatternPath !== '',
         },
         {
           onIframeComplete: (() => {
             this.handleIframeCompleted();
-          })
+          }),
         });
 
       // Insert preview iframe
@@ -108,7 +118,7 @@ class ThreeDModelLoader {
         if (this.rowScale && this.canPreview) {
           this.rowScale.on('changed', (event) => {
             this.preview.setModelScale(
-              parseFloat(event.data.scale) / 100
+              parseFloat(event.data.scale) / 100,
             );
           });
         }
@@ -120,7 +130,7 @@ class ThreeDModelLoader {
             this.preview.setModelPosition({
               x: parseFloat(event.data.x),
               y: parseFloat(event.data.y),
-              z: parseFloat(event.data.z)
+              z: parseFloat(event.data.z),
             });
           });
         }
@@ -132,7 +142,7 @@ class ThreeDModelLoader {
             this.preview.setModelRotation({
               x: parseFloat(event.data.x),
               y: parseFloat(event.data.y),
-              z: parseFloat(event.data.z)
+              z: parseFloat(event.data.z),
             });
           });
         }
@@ -250,7 +260,7 @@ class ThreeDModelLoader {
         x: parseFloat(this.rowRotation.children[0].$input.val()),
         y: parseFloat(this.rowRotation.children[1].$input.val()),
         z: parseFloat(this.rowRotation.children[2].$input.val()),
-      }
+      },
     };
   }
 
@@ -302,7 +312,7 @@ class ThreeDModelLoader {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', src);
         xhr.onreadystatechange = () => {
-          if (xhr.readyState !== 4) {
+          if (xhr.readyState !== XHR_DONE) {
             return;
           }
 
@@ -385,7 +395,7 @@ class ThreeDModelLoader {
   isGLTFEmbeddedFormat(json) {
     const objects = this.findObjects(json, 'uri', '');
     const containsExternalReference = objects.some((obj) => {
-      return obj.uri.substr(0, 5) !== 'data:';
+      return !obj.uri.startsWith('data:');
     });
 
     return !containsExternalReference;
@@ -468,7 +478,7 @@ class ThreeDModelLoader {
   showFileIcon(type) {
     // Wait for image. File.addFile() might not have completed yet
     const waitForImg = (timeout) => {
-      timeout = timeout || 500;
+      timeout = timeout ?? IMAGE_LOADING_TIMEOUT;
 
       if (timeout <= 0) {
         return;
@@ -483,8 +493,8 @@ class ThreeDModelLoader {
       }
       else {
         setTimeout(() => {
-          waitForImg(timeout - 20);
-        }, 20);
+          waitForImg(timeout - IMAGE_LOADING_REPEAT_MS);
+        }, IMAGE_LOADING_REPEAT_MS);
       }
     };
 
@@ -514,4 +524,3 @@ class ThreeDModelLoader {
     this.$container.remove();
   }
 }
-export default ThreeDModelLoader;

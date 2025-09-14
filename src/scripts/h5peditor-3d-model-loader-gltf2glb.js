@@ -6,7 +6,32 @@
  * The MIT License
  * Copyright (c) 2017 Saurabh Bhatia
  */
-class ThreeDModelLoaderGLTF2GLB {
+
+/** @constant {number} FILE_HEADER_BYTES File header size: magic + version + length. */
+const FILE_HEADER_BYTES = 12;
+
+/** @constant {number} JSON_CHUNK_HEADER_BYTES JSON chunk header size: json length + type. */
+const JSON_CHUNK_HEADER_BYTES = 8;
+
+/** @constant {number} BIN_CHUNK_HEADER_BYTES BIN chunk header size: chunk length + type. */
+const BIN_CHUNK_HEADER_BYTES = 8;
+
+/** @constant {number} GLB_HEADER_BYTES GLB header size. */
+const GLB_HEADER_BYTES = 4;
+
+/** @constant {number} BINARY_DATA_CHUNK_ID Binary data chunk ID. */
+const BINARY_DATA_CHUNK_ID = 0x004E4942;
+
+/** @constant {number} JSON_CHUNK_ID JSON chunk ID. */
+const JSON_CHUNK_ID = 0x4E4F534A;
+
+/** @constant {number} PADDING_BYTE_SPACE Padding byte. */
+const PADDING_BYTE_SPACE = 0x20;
+
+/** @constant {number} GLB_VERSION GLB version. */
+const GLB_VERSION = 2;
+
+export default class ThreeDModelLoaderGLTF2GLB {
   /**
    * Constructor.
    */
@@ -23,7 +48,7 @@ class ThreeDModelLoaderGLTF2GLB {
       'image/png': ['png'],
       'image/jpeg': ['jpg', 'jpeg'],
       'text/plain': ['glsl', 'vert', 'vs', 'frag', 'fs', 'txt'],
-      'image/vnd-ms.dds': ['dds']
+      'image/vnd-ms.dds': ['dds'],
     };
   }
 
@@ -53,7 +78,7 @@ class ThreeDModelLoaderGLTF2GLB {
       if (entry) {
         if (entry.isFile) {
           callback({
-            error: H5PEditor.t('H5PEditor.ThreeDModelLoader', 'notAFolder')
+            error: H5PEditor.t('H5PEditor.ThreeDModelLoader', 'notAFolder'),
           });
           return;
         }
@@ -104,7 +129,7 @@ class ThreeDModelLoaderGLTF2GLB {
         this.remainingFilesToProcess += entries.length;
         this.checkForDone();
         for (let i = 0; i < entries.length; i++) {
-          this.traverseFileTree(entries[i], path + item.name + '/');
+          this.traverseFileTree(entries[i], `${path + item.name  }/`);
         }
       });
     }
@@ -124,12 +149,12 @@ class ThreeDModelLoaderGLTF2GLB {
       this.processBuffers()
         .then(() => {
           this.callback({
-            file: this.buildOutputFile()
+            file: this.buildOutputFile(),
           });
         })
         .catch((error) => {
           this.callback({
-            error: error
+            error: error,
           });
         });
     }
@@ -165,7 +190,7 @@ class ThreeDModelLoaderGLTF2GLB {
         const pendingImages = images.map((image) => {
           return this.getDataFromUri(image).then((data) => {
             if (data === undefined) {
-              delete image['uri'];
+              delete image.uri;
               return;
             }
 
@@ -182,9 +207,9 @@ class ThreeDModelLoaderGLTF2GLB {
             const bufferViewIndex = this.gltf.bufferViews.length;
             this.gltf.bufferViews.push(bufferView);
             this.outputBuffers.push(data);
-            image['bufferView'] = bufferViewIndex;
-            image['mimeType'] = this.getMimeType(image.uri);
-            delete image['uri'];
+            image.bufferView = bufferViewIndex;
+            image.mimeType = this.getMimeType(image.uri);
+            delete image.uri;
           });
         });
 
@@ -198,7 +223,7 @@ class ThreeDModelLoaderGLTF2GLB {
    */
   buildOutputFile() {
     const Binary = {
-      Magic: 0x46546C67
+      Magic: 0x46546C67,
     };
 
     for (let i = 0, a = this.gltf.bufferViews; i < a.length; i++) {
@@ -214,7 +239,7 @@ class ThreeDModelLoaderGLTF2GLB {
 
     const binBufferSize = this.bufferOffset;
     this.gltf.buffers = [{
-      byteLength: binBufferSize
+      byteLength: binBufferSize,
     }];
 
     const enc = new TextEncoder();
@@ -227,10 +252,10 @@ class ThreeDModelLoaderGLTF2GLB {
     }
 
     const totalSize =
-      12 + // file header: magic + version + length
-      8 + // json chunk header: json length + type
+      FILE_HEADER_BYTES +
+      JSON_CHUNK_HEADER_BYTES +
       jsonAlignedLength +
-      8 + // bin chunk header: chunk length + type
+      BIN_CHUNK_HEADER_BYTES +
       binBufferSize;
 
     const finalBuffer = new ArrayBuffer(totalSize);
@@ -238,17 +263,17 @@ class ThreeDModelLoaderGLTF2GLB {
 
     let bufIndex = 0;
     dataView.setUint32(bufIndex, Binary.Magic, true);
-    bufIndex += 4;
-    dataView.setUint32(bufIndex, 2, true);
-    bufIndex += 4;
+    bufIndex += GLB_HEADER_BYTES;
+    dataView.setUint32(bufIndex, GLB_VERSION, true);
+    bufIndex += GLB_HEADER_BYTES;
     dataView.setUint32(bufIndex, totalSize, true);
-    bufIndex += 4;
+    bufIndex += GLB_HEADER_BYTES;
 
     // JSON
     dataView.setUint32(bufIndex, jsonAlignedLength, true);
-    bufIndex += 4;
-    dataView.setUint32(bufIndex, 0x4E4F534A, true);
-    bufIndex += 4;
+    bufIndex += GLB_HEADER_BYTES;
+    dataView.setUint32(bufIndex, JSON_CHUNK_ID, true);
+    bufIndex += GLB_HEADER_BYTES;
 
     for (let j = 0; j < jsonBuffer.length; j++) {
       dataView.setUint8(bufIndex, jsonBuffer[j]);
@@ -257,16 +282,16 @@ class ThreeDModelLoaderGLTF2GLB {
 
     if (padding !== undefined) {
       for (let j = 0; j < padding; j++) {
-        dataView.setUint8(bufIndex, 0x20);
+        dataView.setUint8(bufIndex, PADDING_BYTE_SPACE);
         bufIndex++;
       }
     }
 
     // BIN
     dataView.setUint32(bufIndex, binBufferSize, true);
-    bufIndex += 4;
-    dataView.setUint32(bufIndex, 0x004E4942, true);
-    bufIndex += 4;
+    bufIndex += GLB_HEADER_BYTES;
+    dataView.setUint32(bufIndex, BINARY_DATA_CHUNK_ID, true);
+    bufIndex += GLB_HEADER_BYTES;
 
     for (let i = 0; i < this.outputBuffers.length; i++) {
       const bufoffset = bufIndex + this.bufferMap.get(i);
@@ -287,7 +312,11 @@ class ThreeDModelLoaderGLTF2GLB {
    * @returns {boolean} True if URI is base64 encoded.
    */
   isBase64(uri) {
-    return (uri.length < 5) ? false : uri.substr(0, 5) === 'data:';
+    if (!uri || typeof uri !== 'string') {
+      return false;
+    }
+
+    return uri.startsWith('data:');
   }
 
   /**
@@ -351,4 +380,3 @@ class ThreeDModelLoaderGLTF2GLB {
     return 'application/octet-stream';
   }
 }
-export default ThreeDModelLoaderGLTF2GLB;
