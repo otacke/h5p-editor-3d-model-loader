@@ -1,0 +1,13 @@
+{
+  "libraryStrings": {
+    "browserCannotConvert": "Poskušali ste naložiti datoteko glTF brez vdelanih elementov. Neposredna pretvorba v datoteke .glb v tem brskalniku ni podprta. Uporabite drug pretvornik.",
+    "conversionError": "Pretvorba v format .glb ni uspela.",
+    "dropFolderHere": "Sem povlecite mapo z vsemi sredstvi glTF",
+    "fileDamaged": "Datoteke ni bilo mogoče preveriti. Morda je poškodovana.",
+    "filetypeNotSupported": "Zdi se, da ta datoteka ni v podprtem formatu 3D-modela.",
+    "noGLTFFound": "V tej mapi ni datoteke glTF",
+    "notAFolder": "Izbrani element ni mapa.",
+    "onlyEmbeddedAssets": "Poskušali ste naložiti datoteko glTF brez vdelanih sredstev. Datoteka mora biti v mapi skupaj z drugimi pripadajočimi datotekami. Mapo povlecite na določeno spustno polje za ustvarjanje ene same uporabljive datoteke.",
+    "onlyVersionTwo": "Datoteka glTF je različice 1.0. Za uporabo v tem okolju jo je treba pretvoriti v različico 2.0."
+  }
+}
